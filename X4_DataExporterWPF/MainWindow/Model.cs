@@ -222,7 +222,7 @@ namespace X4_DataExporterWPF.MainWindow
                     new TransportType(resolver),                // カーゴ種別情報
                     new Race(catFile, resolver),                // 種族情報
                     new Faction(catFile, resolver),             // 派閥情報
-                    new Map(catFile, resolver),                 // マップ
+                    //new Map(catFile, resolver),                 // マップ
 
                     // ウェア関連
                     new WareGroup(catFile, resolver),           // ウェア種別情報
