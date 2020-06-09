@@ -26,6 +26,12 @@ namespace X4_DataExporterWPF.MainWindow
 
 
         /// <summary>
+        /// 出力先ファイルパス
+        /// </summary>
+        private string _OutFilePath;
+
+
+        /// <summary>
         /// ユーザが操作可能か
         /// </summary>
         private bool _CanOperation = true;
@@ -77,7 +83,18 @@ namespace X4_DataExporterWPF.MainWindow
         /// <summary>
         /// 出力先ファイルパス
         /// </summary>
-        public string OutFilePath { get; set; }
+        public string OutFilePath
+        {
+            get
+            {
+                return _OutFilePath;
+            }
+            set
+            {
+                _OutFilePath = value;
+                OnPropertyChanged();
+            }
+        }
 
 
         /// <summary>

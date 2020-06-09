@@ -1,6 +1,6 @@
 # X4_DataExporterWPF
 
-## 概要
+## Summary
 Extract the [X4:Foundations](//www.egosoft.com/games/x4/info_en.php)data in sqlite format.
 
 

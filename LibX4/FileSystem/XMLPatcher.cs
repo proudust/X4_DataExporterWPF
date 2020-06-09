@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
 using System.Xml.Linq;
@@ -11,6 +10,9 @@ namespace X4_DataExporterWPF.Common
     /// <summary>
     /// XML差分用クラス
     /// </summary>
+    /// <remarks>
+    /// 詳細はRFC5261を参照
+    /// </remarks>
     public class XMLPatcher
     {
         private const string BEFORE = "before";

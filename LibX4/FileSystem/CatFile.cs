@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Text;
-using System.Linq;
 using System.Xml.Linq;
-using System.Xml;
 using System.Xml.XPath;
-using System.Text.RegularExpressions;
 using X4_DataExporterWPF.Common;
 
 namespace LibX4.FileSystem
@@ -27,15 +22,9 @@ namespace LibX4.FileSystem
         private readonly Dictionary<string, CatFileLoader> _ModFiles = new Dictionary<string, CatFileLoader>();
 
         /// <summary>
-        /// セレクタ名を分割する正規表現
-        /// </summary>
-        private readonly Regex _SplitSelectorRegex = new Regex(@"(.*\/)?(\..*?|.*?)$");
-
-
-        /// <summary>
         /// Indexファイル
         /// </summary>
-        private Dictionary<string, XDocument> _IndexFiles = new Dictionary<string, XDocument>();
+        private readonly Dictionary<string, XDocument> _IndexFiles = new Dictionary<string, XDocument>();
 
 
         /// <summary>
@@ -80,7 +69,7 @@ namespace LibX4.FileSystem
                 }
             }
             
-
+            // バニラのデータに見つからない場合、Modのデータを探しに行く
             foreach(var catFile in _ModFiles.Values)
             {
                 using var ret = catFile.OpenFile(filePath);
@@ -91,7 +80,7 @@ namespace LibX4.FileSystem
                 }
             }
 
-            throw new ArgumentException("Empty path", nameof(filePath));
+            throw new FileNotFoundException(nameof(filePath));
         }
 
 
@@ -144,23 +133,6 @@ namespace LibX4.FileSystem
 
             return ret;
         }
-
-        
-
-        /// <summary>
-        /// ノードを追加
-        /// </summary>
-        /// <param name="dst"></param>
-        /// <param name="element"></param>
-        private void AddNode(XDocument dst, XElement element)
-        {
-            var type = element.Attribute("type")?.Value;
-            var pos = element.Attribute("pos")?.Value;
-
-            dst.XPathSelectElement(element.Attribute("sel").Value).Add(element.Elements());
-        }
-
-
 
 
         /// <summary>

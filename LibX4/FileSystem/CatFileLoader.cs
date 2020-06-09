@@ -11,32 +11,31 @@ namespace LibX4.FileSystem
         /// <summary>
         /// ゲームのインストール先
         /// </summary>
-        private string _GameRoot;
+        private readonly string _GameRoot;
 
 
         /// <summary>
         /// ロード済みファイル一覧
         /// </summary>
-        private HashSet<string> _Loaded = new HashSet<string>();
+        private readonly HashSet<string> _Loaded = new HashSet<string>();
 
 
         /// <summary>
         /// catファイルとdatファイルのペア
         /// </summary>
-        private Stack<(string, string)> DataFiles = new Stack<(string, string)>();
+        private readonly Stack<(string, string)> _DataFiles = new Stack<(string, string)>();
 
 
         /// <summary>
         /// ファイルツリー
         /// </summary>
-        private DirNode _FileTree = new DirNode();
-
+        private readonly DirNode _FileTree = new DirNode();
 
 
         /// <summary>
         /// catファイルのレコード分割用正規表現
         /// </summary>
-        private Regex _CatFileParser = new Regex("(.+)? ([0-9]+)? ([0-9]+)? ([a-fA-F0-9]+)?$");
+        private readonly Regex _CatFileParser = new Regex("(.+)? ([0-9]+)? ([0-9]+)? ([a-fA-F0-9]+)?$", RegexOptions.Compiled);
 
 
         /// <summary>
@@ -132,9 +131,9 @@ namespace LibX4.FileSystem
         {
             var loaded = false;
 
-            while (DataFiles.Any())
+            while (_DataFiles.Any())
             {
-                var (catFilePath, datFilePath) = DataFiles.Pop();
+                var (catFilePath, datFilePath) = _DataFiles.Pop();
 
                 // catファイルが未ロードの場合、ロードを試みる
                 if (!_Loaded.Contains(catFilePath))
@@ -157,7 +156,7 @@ namespace LibX4.FileSystem
         /// <returns>読み込んだcatファイルとdatファイルのペア数</returns>
         private int LoadFromGameRoot()
         {
-            var loaded = DataFiles.Count;
+            var loaded = _DataFiles.Count;
 
             var reg = new Regex(@"^(?!.*sig).+?\.cat$");
 
@@ -168,11 +167,11 @@ namespace LibX4.FileSystem
 
                 if (File.Exists(catFilePath) && File.Exists(datFilePath))
                 {
-                    DataFiles.Push((catFilePath, datFilePath));
+                    _DataFiles.Push((catFilePath, datFilePath));
                 }
             }
 
-            return DataFiles.Count - loaded;
+            return _DataFiles.Count - loaded;
         }
 
 

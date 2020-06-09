@@ -1,12 +1,10 @@
-﻿using System.Collections.ObjectModel;
+﻿using Microsoft.WindowsAPICodePack.Dialogs;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using X4_DataExporterWPF.Common;
-using Microsoft.WindowsAPICodePack.Dialogs;
-using System.Windows.Input;
 using System.Windows;
-using System;
+using System.Windows.Input;
 using X4_ComplexCalculator.Common;
+using X4_DataExporterWPF.Common;
 
 namespace X4_DataExporterWPF.MainWindow
 {
@@ -101,7 +99,7 @@ namespace X4_DataExporterWPF.MainWindow
         /// <summary>
         /// 抽出可能か
         /// </summary>
-        public bool CanExport => CanOperation && _Model.SelectedLangage != null;
+        public bool CanExport => CanOperation && _Model.SelectedLangage != null && !string.IsNullOrEmpty(_Model.OutFilePath);
 
 
         /// <summary>
@@ -162,6 +160,10 @@ namespace X4_DataExporterWPF.MainWindow
 
                 case nameof(_Model.CanOperation):
                     OnPropertyChanged(nameof(CanOperation));
+                    OnPropertyChanged(nameof(CanExport));
+                    break;
+
+                case nameof(_Model.OutFilePath):
                     OnPropertyChanged(nameof(CanExport));
                     break;
 
