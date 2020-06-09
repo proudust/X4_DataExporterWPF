@@ -1,4 +1,4 @@
-﻿using LibX4.FileSystem;
+using LibX4.FileSystem;
 using LibX4.Lang;
 using System.Data;
 using System.Data.SQLite;
@@ -132,8 +132,8 @@ CREATE TABLE IF NOT EXISTS Equipment
                 string[] sizes = { "extrasmall", "small", "medium", "large", "extralarge" };
 
                 // 一致するサイズを探す
-                var tags = component.Attribute("tags").Value.Split(" ");
-                var size = sizes.Where(x => tags.Contains(x)).FirstOrDefault();
+                var tags = component?.Attribute("tags").Value.Split(" ");
+                var size = sizes.Where(x => tags?.Contains(x) == true).FirstOrDefault();
                 if (string.IsNullOrEmpty(size))
                 {
                     // 一致するサイズがなかった場合
