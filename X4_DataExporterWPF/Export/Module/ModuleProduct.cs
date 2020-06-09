@@ -1,4 +1,4 @@
-﻿using LibX4.FileSystem;
+using LibX4.FileSystem;
 using LibX4.Lang;
 using System.Data;
 using System.Data.SQLite;
@@ -113,8 +113,8 @@ CREATE TABLE IF NOT EXISTS ModuleProduct
 
                 return (
                     module.Attribute("id").Value,
-                    prod.Attribute("ware").Value,
-                    prod.Attribute("method")?.Value ?? "default"
+                    prod?.Attribute("ware").Value,
+                    prod?.Attribute("method")?.Value ?? "default"
                 );
             }
             catch
