@@ -1,4 +1,4 @@
-﻿using LibX4.FileSystem;
+using LibX4.FileSystem;
 using LibX4.Lang;
 using System.Data;
 using System.Data.SQLite;
@@ -103,15 +103,16 @@ CREATE TABLE IF NOT EXISTS ModuleStorage
                 var cargo = macroXml.Root.XPathSelectElement("macro/properties/cargo");
 
                 // 総合保管庫は飛ばす
-                if (cargo.Attribute("tags").Value.Contains(' '))
+                var tags = cargo?.Attribute("tags")?.Value;
+                if (tags?.Contains(' ') == true)
                 {
                     return ("", "", 0);
                 }
 
                 return (
                     module.Attribute("id").Value,
-                    cargo.Attribute("tags").Value,
-                    int.Parse(cargo.Attribute("max").Value)
+                    tags,
+                    int.Parse(cargo?.Attribute("max").Value)
                 );
             }
             catch
