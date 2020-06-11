@@ -10,7 +10,7 @@ namespace X4_DataExporterWPF.Export
     /// <summary>
     /// ウェア生産時の情報抽出用クラス
     /// </summary>
-    public class WareProduction : IExport
+    public class WareProductionExporter : IExporter
     {
         /// <summary>
         /// ウェア情報xml
@@ -29,7 +29,7 @@ namespace X4_DataExporterWPF.Export
         /// </summary>
         /// <param name="waresXml">ウェア情報xml</param>
         /// <param name="resolver">言語解決用オブジェクト</param>
-        public WareProduction(XDocument waresXml, LangageResolver resolver)
+        public WareProductionExporter(XDocument waresXml, LangageResolver resolver)
         {
             _WaresXml = waresXml;
             _Resolver = resolver;

@@ -11,7 +11,7 @@ namespace X4_DataExporterWPF.Export
     /// <summary>
     /// モジュールのシールド情報抽出用クラス
     /// </summary>
-    public class ModuleShield : IExport
+    public class ModuleShieldExporter : IExporter
     {
         /// <summary>
         /// catファイルオブジェクト
@@ -29,7 +29,7 @@ namespace X4_DataExporterWPF.Export
         /// </summary>
         /// <param name="catFile">catファイルオブジェクト</param>
         /// <param name="waresXml">ウェア情報xml</param>
-        public ModuleShield(CatFile catFile, XDocument waresXml)
+        public ModuleShieldExporter(CatFile catFile, XDocument waresXml)
         {
             _CatFile = catFile;
             _WaresXml = waresXml;

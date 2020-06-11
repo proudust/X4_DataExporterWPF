@@ -11,7 +11,7 @@ namespace X4_DataExporterWPF.Export
     /// <summary>
     /// 派閥情報抽出用クラス
     /// </summary>
-    public class Faction : IExport
+    public class FactionExporter : IExporter
     {
         /// <summary>
         /// 派閥情報xml
@@ -30,7 +30,7 @@ namespace X4_DataExporterWPF.Export
         /// </summary>
         /// <param name="catFile">catファイル</param>
         /// <param name="resolver">言語解決用オブジェクト</param>
-        public Faction(CatFile catFile, LangageResolver resolver)
+        public FactionExporter(CatFile catFile, LangageResolver resolver)
         {
             _FactionsXml = catFile.OpenXml("libraries/factions.xml");
 

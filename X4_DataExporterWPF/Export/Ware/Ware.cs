@@ -7,7 +7,7 @@ using LibX4.Lang;
 
 namespace X4_DataExporterWPF.Export
 {
-    public class Ware : IExport
+    public class WareExporter : IExporter
     {
         /// <summary>
         /// ウェア情報xml
@@ -26,7 +26,7 @@ namespace X4_DataExporterWPF.Export
         /// </summary>
         /// <param name="waresXml">ウェア情報xml</param>
         /// <param name="resolver">言語解決用オブジェクト</param>
-        public Ware(XDocument waresXml, LangageResolver resolver)
+        public WareExporter(XDocument waresXml, LangageResolver resolver)
         {
             _WaresXml = waresXml;
             _Resolver = resolver;

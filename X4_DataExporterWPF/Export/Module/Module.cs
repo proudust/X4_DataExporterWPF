@@ -11,7 +11,7 @@ namespace X4_DataExporterWPF.Export
     /// <summary>
     /// モジュール情報抽出用クラス
     /// </summary>
-    public class Module : IExport
+    public class ModuleExporter : IExporter
     {
         /// <summary>
         /// catファイルオブジェクト
@@ -36,7 +36,7 @@ namespace X4_DataExporterWPF.Export
         /// <param name="catFile">catファイルオブジェクト</param>
         /// <param name="waresXml">ウェア情報xml</param>
         /// <param name="resolver">言語解決用オブジェクト</param>
-        public Module(CatFile catFile, XDocument waresXml, LangageResolver resolver)
+        public ModuleExporter(CatFile catFile, XDocument waresXml, LangageResolver resolver)
         {
             _CatFile = catFile;
             _WaresXml = waresXml;

@@ -11,7 +11,7 @@ namespace X4_DataExporterWPF.Export
     /// <summary>
     /// 装備情報抽出用クラス
     /// </summary>
-    class Equipment : IExport
+    class EquipmentExporter : IExporter
     {
         /// <summary>
         /// catファイルオブジェクト
@@ -37,7 +37,7 @@ namespace X4_DataExporterWPF.Export
         /// <param name="catFile">catファイルオブジェクト</param>
         /// <param name="waresXml">ウェア情報xml</param>
         /// <param name="resolver">言語解決用オブジェクト</param>
-        public Equipment(CatFile catFile, XDocument waresXml, LangageResolver resolver)
+        public EquipmentExporter(CatFile catFile, XDocument waresXml, LangageResolver resolver)
         {
             _CatFile = catFile;
             _WaresXml = waresXml;
@@ -91,11 +91,11 @@ CREATE TABLE IF NOT EXISTS Equipment
                 foreach (var item in items)
                 {
                     cmd.Parameters.Clear();
-                    cmd.Parameters.AddWithValue("@equipmentID", item.Item1);
-                    cmd.Parameters.AddWithValue("@macroName", item.Item2);
+                    cmd.Parameters.AddWithValue("@equipmentID",     item.Item1);
+                    cmd.Parameters.AddWithValue("@macroName",       item.Item2);
                     cmd.Parameters.AddWithValue("@equipmentTypeID", item.Item3);
-                    cmd.Parameters.AddWithValue("@sizeID", item.Item4);
-                    cmd.Parameters.AddWithValue("@name", item.Item5);
+                    cmd.Parameters.AddWithValue("@sizeID",          item.Item4);
+                    cmd.Parameters.AddWithValue("@name",            item.Item5);
 
                     cmd.ExecuteNonQuery();
                 }

@@ -9,7 +9,7 @@ namespace X4_DataExporterWPF.Export
     /// <summary>
     /// 装備作成時の情報抽出用クラス
     /// </summary>
-    class EquipmentProduction : IExport
+    class EquipmentProductionExporter : IExporter
     {
         /// <summary>
         /// ウェア情報xml
@@ -21,7 +21,7 @@ namespace X4_DataExporterWPF.Export
         /// コンストラクタ
         /// </summary>
         /// <param name="waresXml">ウェア情報xml</param>
-        public EquipmentProduction(XDocument waresXml)
+        public EquipmentProductionExporter(XDocument waresXml)
         {
             _WaresXml = waresXml;
         }

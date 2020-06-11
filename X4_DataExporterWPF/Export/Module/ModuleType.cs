@@ -7,7 +7,7 @@ namespace X4_DataExporterWPF.Export
     /// <summary>
     /// モジュール種別抽出用クラス
     /// </summary>
-    public class ModuleType : IExport
+    public class ModuleTypeExporter : IExporter
     {
 
         /// <summary>
@@ -20,7 +20,7 @@ namespace X4_DataExporterWPF.Export
         /// コンストラクタ
         /// </summary>
         /// <param name="resolver">言語解決用オブジェクト</param>
-        public ModuleType(LangageResolver resolver)
+        public ModuleTypeExporter(LangageResolver resolver)
         {
             _Resolver = resolver;
         }

@@ -6,7 +6,7 @@ namespace X4_DataExporterWPF.Export
     /// <summary>
     /// 装備種別情報抽出用クラス
     /// </summary>
-    public class EquipmentType : IExport
+    public class EquipmentTypeExporter : IExporter
     {
         /// <summary>
         /// 言語解決用オブジェクト
@@ -18,7 +18,7 @@ namespace X4_DataExporterWPF.Export
         /// コンストラクタ
         /// </summary>
         /// <param name="resolver">言語解決用オブジェクト</param>
-        public EquipmentType(LangageResolver resolver)
+        public EquipmentTypeExporter(LangageResolver resolver)
         {
             _Resolver = resolver;
         }

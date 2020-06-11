@@ -10,7 +10,7 @@ namespace X4_DataExporterWPF.Export
     /// <summary>
     /// 種族情報抽出用クラス
     /// </summary>
-    public class Race : IExport
+    public class RaceExporter : IExporter
     {
         /// <summary>
         /// 種族情報xml
@@ -29,7 +29,7 @@ namespace X4_DataExporterWPF.Export
         /// </summary>
         /// <param name="catFile">catファイル</param>
         /// <param name="resolver">言語解決用オブジェクト</param>
-        public Race(CatFile catFile, LangageResolver resolver)
+        public RaceExporter(CatFile catFile, LangageResolver resolver)
         {
             _RaceXml = catFile.OpenXml("libraries/races.xml");
 

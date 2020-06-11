@@ -10,7 +10,7 @@ namespace X4_DataExporterWPF.Export
     /// <summary>
     /// モジュールの保管容量情報抽出用クラス
     /// </summary>
-    class ModuleStorage : IExport
+    class ModuleStorageExporter : IExporter
     {
         /// <summary>
         /// catファイルオブジェクト
@@ -28,7 +28,7 @@ namespace X4_DataExporterWPF.Export
         /// </summary>
         /// <param name="catFile">catファイルオブジェクト</param>
         /// <param name="waresXml">ウェア情報xml</param>
-        public ModuleStorage(CatFile catFile, XDocument waresXml)
+        public ModuleStorageExporter(CatFile catFile, XDocument waresXml)
         {
             _CatFile = catFile;
             _WaresXml = waresXml;

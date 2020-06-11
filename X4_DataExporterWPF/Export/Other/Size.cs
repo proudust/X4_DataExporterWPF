@@ -6,7 +6,7 @@ namespace X4_DataExporterWPF.Export
     /// <summary>
     /// サイズ情報抽出用クラス
     /// </summary>
-    class Size : IExport
+    class SizeExporter : IExporter
     {
         /// <summary>
         /// 言語解決用オブジェクト
@@ -18,7 +18,7 @@ namespace X4_DataExporterWPF.Export
         /// コンストラクタ
         /// </summary>
         /// <param name="resolver">言語解決用オブジェクト</param>
-        public Size(LangageResolver resolver)
+        public SizeExporter(LangageResolver resolver)
         {
             Resolver = resolver;
         }

@@ -7,7 +7,7 @@ using LibX4.Lang;
 
 namespace X4_DataExporterWPF.Export
 {
-    class Map : IExport
+    class MapExporter : IExporter
     {
         /// <summary>
         /// マップ情報xml
@@ -26,7 +26,7 @@ namespace X4_DataExporterWPF.Export
         /// </summary>
         /// <param name="catFile">catファイル</param>
         /// <param name="resolver">言語解決用オブジェクト</param>
-        public Map(CatFile catFile, LangageResolver resolver)
+        public MapExporter(CatFile catFile, LangageResolver resolver)
         {
             _MapXml = catFile.OpenXml("libraries/mapdefaults.xml");
             _Resolver = resolver;
