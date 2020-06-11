@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Data.SQLite;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Threading;
 using System.Xml.XPath;
+using CommandLine;
 using LibX4.FileSystem;
+using LibX4.Lang;
 using X4_ComplexCalculator.Common;
 using X4_DataExporterWPF.Common;
 using X4_DataExporterWPF.Export;
@@ -156,10 +159,10 @@ namespace X4_DataExporterWPF.MainWindow
         /// </summary>
         public Model()
         {
-            var option = CommandLine.Parser.Default.ParseArguments<CommandlineOptions>(System.Environment.GetCommandLineArgs());
-            if (option.Tag == CommandLine.ParserResultType.Parsed)
+            var option = Parser.Default.ParseArguments<CommandlineOptions>(Environment.GetCommandLineArgs());
+            if (option.Tag == ParserResultType.Parsed)
             {
-                var parsed = (CommandLine.Parsed<CommandlineOptions>)option;
+                var parsed = (Parsed<CommandlineOptions>)option;
 
                 InDirPath = parsed.Value.InputDirectory;
                 OutFilePath = parsed.Value.OutputFilePath;
@@ -202,9 +205,9 @@ namespace X4_DataExporterWPF.MainWindow
                 // ユーザ操作禁止
                 CanOperation = false;
 
-                if (System.IO.File.Exists(OutFilePath))
+                if (File.Exists(OutFilePath))
                 {
-                    System.IO.File.Delete(OutFilePath);
+                    File.Delete(OutFilePath);
                 }
 
                 var catFile = new CatFile(_InDirPath);
@@ -216,7 +219,7 @@ namespace X4_DataExporterWPF.MainWindow
                 using var trans = conn.BeginTransaction();
                 using var cmd = conn.CreateCommand();
 
-                var resolver = new LibX4.Lang.LangageResolver(catFile);
+                var resolver = new LangageResolver(catFile);
 
                 // 英語をデフォルトにする
                 resolver.LoadLangFile(44);
