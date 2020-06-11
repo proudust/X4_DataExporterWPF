@@ -1,17 +1,15 @@
-﻿using LibX4.FileSystem;
-using LibX4.Lang;
-using System.Data;
+﻿using System.Data;
 using System.Data.SQLite;
 using System.Linq;
 using System.Xml.Linq;
 using System.Xml.XPath;
 
-namespace X4_DataExporterWPF.Export.Equipment
+namespace X4_DataExporterWPF.Export
 {
     /// <summary>
     /// 装備生産に必要なウェア情報抽出用クラス
     /// </summary>
-    class EquipmentResource : IExport
+    class EquipmentResourceExporter : IExporter
     {
         /// <summary>
         /// ウェア情報xml
@@ -22,7 +20,7 @@ namespace X4_DataExporterWPF.Export.Equipment
         /// コンストラクタ
         /// </summary>
         /// <param name="waresXml">ウェア情報xml</param>
-        public EquipmentResource(XDocument waresXml)
+        public EquipmentResourceExporter(XDocument waresXml)
         {
             _WaresXml = waresXml;
         }
@@ -63,7 +61,7 @@ CREATE TABLE IF NOT EXISTS EquipmentResource
                     (
                         prod => prod.XPathSelectElements("primary/ware").Select
                         (
-                            ware => 
+                            ware =>
                             (
                                 equipment.Attribute("id")?.Value ?? "",
                                 prod.Attribute("method")?.Value ?? "",

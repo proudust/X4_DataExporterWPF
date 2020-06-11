@@ -12,7 +12,7 @@ namespace X4_DataExporterWPF.Common
 
         public DelegateCommand(Action executeMethod) : this(executeMethod, AlwaysTrue)
         {
-            
+
         }
 
         public DelegateCommand(Action executeMethod, Func<bool> canExecuteMethod)

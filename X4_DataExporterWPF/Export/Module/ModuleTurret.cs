@@ -1,18 +1,17 @@
-﻿using LibX4.FileSystem;
-using LibX4.Lang;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
 using System.Linq;
 using System.Xml.Linq;
 using System.Xml.XPath;
+using LibX4.FileSystem;
 
-namespace X4_DataExporterWPF.Export.Module
+namespace X4_DataExporterWPF.Export
 {
     /// <summary>
     /// モジュールのタレット情報抽出用クラス
     /// </summary>
-    public class ModuleTurret : IExport
+    public class ModuleTurretExporter : IExporter
     {
         /// <summary>
         /// catファイルオブジェクト
@@ -30,7 +29,7 @@ namespace X4_DataExporterWPF.Export.Module
         /// </summary>
         /// <param name="catFile">catファイルオブジェクト</param>
         /// <param name="waresXml">ウェア情報xml</param>
-        public ModuleTurret(CatFile catFile, XDocument waresXml)
+        public ModuleTurretExporter(CatFile catFile, XDocument waresXml)
         {
             _CatFile = catFile;
             _WaresXml = waresXml;

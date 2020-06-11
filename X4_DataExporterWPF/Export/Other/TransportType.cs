@@ -1,12 +1,12 @@
-﻿using LibX4.Lang;
-using System.Data.SQLite;
+﻿using System.Data.SQLite;
+using LibX4.Lang;
 
-namespace X4_DataExporterWPF.Export.Other
+namespace X4_DataExporterWPF.Export
 {
     /// <summary>
     /// カーゴ種別抽出用クラス
     /// </summary>
-    class TransportType : IExport
+    class TransportTypeExporter : IExporter
     {
         /// <summary>
         /// 言語解決用オブジェクト
@@ -18,7 +18,7 @@ namespace X4_DataExporterWPF.Export.Other
         /// コンストラクタ
         /// </summary>
         /// <param name="resolver">言語解決用オブジェクト</param>
-        public TransportType(LangageResolver resolver)
+        public TransportTypeExporter(LangageResolver resolver)
         {
             Resolver = resolver;
         }

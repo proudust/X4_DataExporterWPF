@@ -1,13 +1,13 @@
-﻿using LibX4.Lang;
-using System.Data.SQLite;
+﻿using System.Data.SQLite;
+using LibX4.Lang;
 
 
-namespace X4_DataExporterWPF.Export.Module
+namespace X4_DataExporterWPF.Export
 {
     /// <summary>
     /// モジュール種別抽出用クラス
     /// </summary>
-    public class ModuleType : IExport
+    public class ModuleTypeExporter : IExporter
     {
 
         /// <summary>
@@ -20,7 +20,7 @@ namespace X4_DataExporterWPF.Export.Module
         /// コンストラクタ
         /// </summary>
         /// <param name="resolver">言語解決用オブジェクト</param>
-        public ModuleType(LangageResolver resolver)
+        public ModuleTypeExporter(LangageResolver resolver)
         {
             _Resolver = resolver;
         }

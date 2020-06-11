@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace X4_DataExporterWPF.MainWindow
+﻿namespace X4_DataExporterWPF.MainWindow
 {
     /// <summary>
     /// 言語コンボボックス用アイテム

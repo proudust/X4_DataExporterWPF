@@ -1,11 +1,11 @@
 ﻿using System.Data.SQLite;
 
-namespace X4_DataExporterWPF.Export.Other
+namespace X4_DataExporterWPF.Export
 {
     /// <summary>
     /// ウェア生産時の追加効果抽出用クラス
     /// </summary>
-    public class Effect : IExport
+    public class EffectExporter : IExporter
     {
         public void Export(SQLiteCommand cmd)
         {

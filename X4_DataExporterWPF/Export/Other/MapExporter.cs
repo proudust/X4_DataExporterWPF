@@ -1,16 +1,13 @@
-﻿using LibX4.FileSystem;
-using LibX4.Lang;
-using System;
-using System.Collections.Generic;
-using System.Data.SQLite;
+﻿using System.Data.SQLite;
 using System.Linq;
-using System.Text;
 using System.Xml.Linq;
 using System.Xml.XPath;
+using LibX4.FileSystem;
+using LibX4.Lang;
 
-namespace X4_DataExporterWPF.Export.Other
+namespace X4_DataExporterWPF.Export
 {
-    class Map : IExport
+    class MapExporter : IExporter
     {
         /// <summary>
         /// マップ情報xml
@@ -29,7 +26,7 @@ namespace X4_DataExporterWPF.Export.Other
         /// </summary>
         /// <param name="catFile">catファイル</param>
         /// <param name="resolver">言語解決用オブジェクト</param>
-        public Map(CatFile catFile, LangageResolver resolver)
+        public MapExporter(CatFile catFile, LangageResolver resolver)
         {
             _MapXml = catFile.OpenXml("libraries/mapdefaults.xml");
             _Resolver = resolver;

@@ -1,16 +1,16 @@
-﻿using LibX4.FileSystem;
-using LibX4.Lang;
-using System.Data;
+﻿using System.Data;
+using System.Data.SQLite;
 using System.Linq;
 using System.Xml.Linq;
-using System.Data.SQLite;
+using LibX4.FileSystem;
+using LibX4.Lang;
 
-namespace X4_DataExporterWPF.Export.Race
+namespace X4_DataExporterWPF.Export
 {
     /// <summary>
     /// 種族情報抽出用クラス
     /// </summary>
-    public class Race : IExport
+    public class RaceExporter : IExporter
     {
         /// <summary>
         /// 種族情報xml
@@ -29,7 +29,7 @@ namespace X4_DataExporterWPF.Export.Race
         /// </summary>
         /// <param name="catFile">catファイル</param>
         /// <param name="resolver">言語解決用オブジェクト</param>
-        public Race(CatFile catFile, LangageResolver resolver)
+        public RaceExporter(CatFile catFile, LangageResolver resolver)
         {
             _RaceXml = catFile.OpenXml("libraries/races.xml");
 

@@ -1,17 +1,17 @@
-using LibX4.FileSystem;
-using LibX4.Lang;
 using System.Data;
 using System.Data.SQLite;
 using System.Linq;
 using System.Xml.Linq;
 using System.Xml.XPath;
+using LibX4.FileSystem;
+using LibX4.Lang;
 
-namespace X4_DataExporterWPF.Export.Equipment
+namespace X4_DataExporterWPF.Export
 {
     /// <summary>
     /// 装備情報抽出用クラス
     /// </summary>
-    class Equipment : IExport
+    class EquipmentExporter : IExporter
     {
         /// <summary>
         /// catファイルオブジェクト
@@ -37,7 +37,7 @@ namespace X4_DataExporterWPF.Export.Equipment
         /// <param name="catFile">catファイルオブジェクト</param>
         /// <param name="waresXml">ウェア情報xml</param>
         /// <param name="resolver">言語解決用オブジェクト</param>
-        public Equipment(CatFile catFile, XDocument waresXml, LangageResolver resolver)
+        public EquipmentExporter(CatFile catFile, XDocument waresXml, LangageResolver resolver)
         {
             _CatFile = catFile;
             _WaresXml = waresXml;

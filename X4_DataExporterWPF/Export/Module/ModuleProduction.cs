@@ -1,18 +1,16 @@
-﻿using LibX4.FileSystem;
-using LibX4.Lang;
-using System.Data;
+﻿using System.Data;
 using System.Data.SQLite;
 using System.Linq;
 using System.Xml.Linq;
 using System.Xml.XPath;
 
 
-namespace X4_DataExporterWPF.Export.Module
+namespace X4_DataExporterWPF.Export
 {
     /// <summary>
     /// モジュール建造に関する情報抽出用クラス
     /// </summary>
-    class ModuleProduction : IExport
+    class ModuleProductionExporter : IExporter
     {
         /// <summary>
         /// ウェア情報xml
@@ -24,7 +22,7 @@ namespace X4_DataExporterWPF.Export.Module
         /// コンストラクタ
         /// </summary>
         /// <param name="waresXml">ウェア情報xml</param>
-        public ModuleProduction(XDocument waresXml)
+        public ModuleProductionExporter(XDocument waresXml)
         {
             _WaresXml = waresXml;
         }

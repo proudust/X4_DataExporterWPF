@@ -1,12 +1,12 @@
-﻿using LibX4.Lang;
-using System.Data.SQLite;
+﻿using System.Data.SQLite;
+using LibX4.Lang;
 
-namespace X4_DataExporterWPF.Export.Other
+namespace X4_DataExporterWPF.Export
 {
     /// <summary>
     /// サイズ情報抽出用クラス
     /// </summary>
-    class Size : IExport
+    class SizeExporter : IExporter
     {
         /// <summary>
         /// 言語解決用オブジェクト
@@ -18,7 +18,7 @@ namespace X4_DataExporterWPF.Export.Other
         /// コンストラクタ
         /// </summary>
         /// <param name="resolver">言語解決用オブジェクト</param>
-        public Size(LangageResolver resolver)
+        public SizeExporter(LangageResolver resolver)
         {
             Resolver = resolver;
         }

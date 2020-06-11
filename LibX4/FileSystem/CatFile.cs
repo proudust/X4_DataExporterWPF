@@ -68,9 +68,9 @@ namespace LibX4.FileSystem
                     return ret;
                 }
             }
-            
+
             // バニラのデータに見つからない場合、Modのデータを探しに行く
-            foreach(var catFile in _ModFiles.Values)
+            foreach (var catFile in _ModFiles.Values)
             {
                 using var ret = catFile.OpenFile(filePath);
 
@@ -105,7 +105,7 @@ namespace LibX4.FileSystem
             }
 
             // Modのxmlを連結
-            foreach(var (modPath, catFile) in _ModFiles)
+            foreach (var (modPath, catFile) in _ModFiles)
             {
                 var targetPath = filePath;
 

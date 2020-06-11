@@ -187,7 +187,7 @@ namespace LibX4.FileSystem
         {
             var ret = _FileTree;
 
-            foreach(var directory in directories)
+            foreach (var directory in directories)
             {
                 var getSucceeded = ret.Directories.TryGetValue(directory, out DirNode next);
 
@@ -237,7 +237,7 @@ namespace LibX4.FileSystem
             {
                 return (null, null);
             }
-            
+
             return (entry, directory);
         }
 

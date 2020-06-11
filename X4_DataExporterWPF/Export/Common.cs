@@ -5,7 +5,7 @@ namespace X4_DataExporterWPF.Export
     /// <summary>
     /// ウェア生産時の追加効果抽出用クラス
     /// </summary>
-    public class Common : IExport
+    public class CommonExporter : IExporter
     {
         public void Export(SQLiteCommand cmd)
         {

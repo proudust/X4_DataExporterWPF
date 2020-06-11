@@ -1,18 +1,16 @@
-﻿using LibX4.FileSystem;
-using System;
+﻿using System;
 using System.Data.SQLite;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Threading;
 using System.Xml.XPath;
+using CommandLine;
+using LibX4.FileSystem;
+using LibX4.Lang;
 using X4_ComplexCalculator.Common;
 using X4_DataExporterWPF.Common;
 using X4_DataExporterWPF.Export;
-using X4_DataExporterWPF.Export.Other;
-using X4_DataExporterWPF.Export.Equipment;
-using X4_DataExporterWPF.Export.Module;
-using X4_DataExporterWPF.Export.Race;
-using X4_DataExporterWPF.Export.Ware;
 
 namespace X4_DataExporterWPF.MainWindow
 {
@@ -161,10 +159,10 @@ namespace X4_DataExporterWPF.MainWindow
         /// </summary>
         public Model()
         {
-            var option = CommandLine.Parser.Default.ParseArguments<CommandlineOptions>(System.Environment.GetCommandLineArgs());
-            if (option.Tag == CommandLine.ParserResultType.Parsed)
+            var option = Parser.Default.ParseArguments<CommandlineOptions>(Environment.GetCommandLineArgs());
+            if (option.Tag == ParserResultType.Parsed)
             {
-                var parsed = (CommandLine.Parsed<CommandlineOptions>)option;
+                var parsed = (Parsed<CommandlineOptions>)option;
 
                 InDirPath = parsed.Value.InputDirectory;
                 OutFilePath = parsed.Value.OutputFilePath;
@@ -188,7 +186,7 @@ namespace X4_DataExporterWPF.MainWindow
 
                 Langages.Reset(langages);
             }
-            catch(Exception)
+            catch (Exception)
             {
                 Langages.Clear();
             }
@@ -207,9 +205,9 @@ namespace X4_DataExporterWPF.MainWindow
                 // ユーザ操作禁止
                 CanOperation = false;
 
-                if (System.IO.File.Exists(OutFilePath))
+                if (File.Exists(OutFilePath))
                 {
-                    System.IO.File.Delete(OutFilePath);
+                    File.Delete(OutFilePath);
                 }
 
                 var catFile = new CatFile(_InDirPath);
@@ -221,7 +219,7 @@ namespace X4_DataExporterWPF.MainWindow
                 using var trans = conn.BeginTransaction();
                 using var cmd = conn.CreateCommand();
 
-                var resolver = new LibX4.Lang.LangageResolver(catFile);
+                var resolver = new LangageResolver(catFile);
 
                 // 英語をデフォルトにする
                 resolver.LoadLangFile(44);
@@ -230,53 +228,53 @@ namespace X4_DataExporterWPF.MainWindow
 
                 var waresXml = catFile.OpenXml("libraries/wares.xml");
 
-                IExport[] exports =
+                IExporter[] exporters =
                 {
                     // 共通
-                    new Export.Common(),                        // 共通情報
-                    new Effect(),                               // 追加効果情報
-                    new Export.Other.Size(resolver),            // サイズ情報
-                    new TransportType(resolver),                // カーゴ種別情報
-                    new Race(catFile, resolver),                // 種族情報
-                    new Faction(catFile, resolver),             // 派閥情報
-                    //new Map(catFile, resolver),                 // マップ
+                    new CommonExporter(),                               // 共通情報
+                    new EffectExporter(),                               // 追加効果情報
+                    new SizeExporter(resolver),                         // サイズ情報
+                    new TransportTypeExporter(resolver),                // カーゴ種別情報
+                    new RaceExporter(catFile, resolver),                // 種族情報
+                    new FactionExporter(catFile, resolver),             // 派閥情報
+                    //new MapExporter(catFile, resolver),                 // マップ
 
                     // ウェア関連
-                    new WareGroup(catFile, resolver),           // ウェア種別情報
-                    new Ware(waresXml, resolver),               // ウェア情報
-                    new WareResource(waresXml),                 // ウェア生産時に必要な情報
-                    new WareProduction(waresXml, resolver),     // ウェア生産に必要な情報
-                    new WareEffect(waresXml),                   // ウェア生産時の追加効果情報
+                    new WareGroupExporter(catFile, resolver),           // ウェア種別情報
+                    new WareExporter(waresXml, resolver),               // ウェア情報
+                    new WareResourceExporter(waresXml),                 // ウェア生産時に必要な情報
+                    new WareProductionExporter(waresXml, resolver),     // ウェア生産に必要な情報
+                    new WareEffectExporter(waresXml),                   // ウェア生産時の追加効果情報
 
                     // モジュール関連
-                    new ModuleType(resolver),                   // モジュール種別情報
-                    new Module(catFile, waresXml, resolver),    // モジュール情報
-                    new ModuleOwner(waresXml),                  // モジュール所有派閥情報
-                    new ModuleProduction(waresXml),             // モジュール建造情報
-                    new ModuleResource(waresXml),               // モジュール建造に必要なウェア情報
-                    new ModuleProduct(catFile, waresXml),       // モジュールの生産品情報
-                    new ModuleShield(catFile, waresXml),        // モジュールのシールド情報
-                    new ModuleTurret(catFile, waresXml),        // モジュールのタレット情報
-                    new ModuleStorage(catFile, waresXml),       // モジュールの保管容量情報
+                    new ModuleTypeExporter(resolver),                   // モジュール種別情報
+                    new ModuleExporter(catFile, waresXml, resolver),    // モジュール情報
+                    new ModuleOwnerExporter(waresXml),                  // モジュール所有派閥情報
+                    new ModuleProductionExporter(waresXml),             // モジュール建造情報
+                    new ModuleResourceExporter(waresXml),               // モジュール建造に必要なウェア情報
+                    new ModuleProductExporter(catFile, waresXml),       // モジュールの生産品情報
+                    new ModuleShieldExporter(catFile, waresXml),        // モジュールのシールド情報
+                    new ModuleTurretExporter(catFile, waresXml),        // モジュールのタレット情報
+                    new ModuleStorageExporter(catFile, waresXml),       // モジュールの保管容量情報
 
                     // 装備関連
-                    new EquipmentType(resolver),                // 装備種別情報
-                    new Equipment(catFile, waresXml, resolver), // 装備情報
-                    new EquipmentOwner(waresXml),               // 装備保有派閥情報
-                    new EquipmentResource(waresXml),            // 装備生産に必要なウェア情報
-                    new EquipmentProduction(waresXml),          // 装備生産に関する情報
+                    new EquipmentTypeExporter(resolver),                // 装備種別情報
+                    new EquipmentExporter(catFile, waresXml, resolver), // 装備情報
+                    new EquipmentOwnerExporter(waresXml),               // 装備保有派閥情報
+                    new EquipmentResourceExporter(waresXml),            // 装備生産に必要なウェア情報
+                    new EquipmentProductionExporter(waresXml),          // 装備生産に関する情報
 
                     // 従業員関連
-                    new WorkUnitProduction(waresXml),           // 従業員用生産情報
-                    new WorkUnitResource(waresXml)              // 従業員用必要ウェア情報
+                    new WorkUnitProductionExporter(waresXml),           // 従業員用生産情報
+                    new WorkUnitResourceExporter(waresXml)              // 従業員用必要ウェア情報
                 };
 
                 // 進捗初期化
-                MaxSteps = exports.Length;
+                MaxSteps = exporters.Length;
                 CurrentStep = 0;
-                foreach (var export in exports)
+                foreach (var exporter in exporters)
                 {
-                    export.Export(cmd);
+                    exporter.Export(cmd);
                     CurrentStep++;
                     DoEvents();
                 }

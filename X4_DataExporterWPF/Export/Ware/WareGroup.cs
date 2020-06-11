@@ -1,17 +1,17 @@
-﻿using LibX4.FileSystem;
-using LibX4.Lang;
-using System.Data;
+﻿using System.Data;
 using System.Data.SQLite;
 using System.Linq;
 using System.Xml.Linq;
 using System.Xml.XPath;
+using LibX4.FileSystem;
+using LibX4.Lang;
 
-namespace X4_DataExporterWPF.Export.Ware
+namespace X4_DataExporterWPF.Export
 {
     /// <summary>
     /// ウェア種別抽出用クラス
     /// </summary>
-    public class WareGroup : IExport
+    public class WareGroupExporter : IExporter
     {
         /// <summary>
         /// ウェア種別情報xml
@@ -30,7 +30,7 @@ namespace X4_DataExporterWPF.Export.Ware
         /// </summary>
         /// <param name="catFile">catファイル</param>
         /// <param name="resolver">言語解決用オブジェクト</param>
-        public WareGroup(CatFile catFile, LangageResolver resolver)
+        public WareGroupExporter(CatFile catFile, LangageResolver resolver)
         {
             _WareGroupXml = catFile.OpenXml("libraries/waregroups.xml");
 

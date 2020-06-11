@@ -1,17 +1,17 @@
-﻿using LibX4.FileSystem;
-using LibX4.Lang;
-using System.Data;
+﻿using System.Data;
+using System.Data.SQLite;
 using System.Linq;
 using System.Xml.Linq;
-using System.Data.SQLite;
 using System.Xml.XPath;
+using LibX4.FileSystem;
+using LibX4.Lang;
 
-namespace X4_DataExporterWPF.Export.Race
+namespace X4_DataExporterWPF.Export
 {
     /// <summary>
     /// 派閥情報抽出用クラス
     /// </summary>
-    public class Faction : IExport
+    public class FactionExporter : IExporter
     {
         /// <summary>
         /// 派閥情報xml
@@ -30,7 +30,7 @@ namespace X4_DataExporterWPF.Export.Race
         /// </summary>
         /// <param name="catFile">catファイル</param>
         /// <param name="resolver">言語解決用オブジェクト</param>
-        public Faction(CatFile catFile, LangageResolver resolver)
+        public FactionExporter(CatFile catFile, LangageResolver resolver)
         {
             _FactionsXml = catFile.OpenXml("libraries/factions.xml");
 
@@ -82,7 +82,7 @@ CREATE TABLE IF NOT EXISTS Faction
                 );
 
                 cmd.CommandText = "INSERT INTO Faction (FactionID, Name, RaceID, ShortName) values (@factionID, @name, @raceID, @shortName)";
-                foreach(var item in items)
+                foreach (var item in items)
                 {
                     cmd.Parameters.Clear();
                     cmd.Parameters.AddWithValue("@factionID",   item.Item1);

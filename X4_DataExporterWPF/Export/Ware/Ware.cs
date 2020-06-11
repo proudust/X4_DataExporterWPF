@@ -1,14 +1,13 @@
-﻿using LibX4.Lang;
-using System.Data;
+﻿using System.Data;
 using System.Data.SQLite;
-using System.Diagnostics;
 using System.Linq;
 using System.Xml.Linq;
 using System.Xml.XPath;
+using LibX4.Lang;
 
-namespace X4_DataExporterWPF.Export.Ware
+namespace X4_DataExporterWPF.Export
 {
-    public class Ware : IExport
+    public class WareExporter : IExporter
     {
         /// <summary>
         /// ウェア情報xml
@@ -27,7 +26,7 @@ namespace X4_DataExporterWPF.Export.Ware
         /// </summary>
         /// <param name="waresXml">ウェア情報xml</param>
         /// <param name="resolver">言語解決用オブジェクト</param>
-        public Ware(XDocument waresXml, LangageResolver resolver)
+        public WareExporter(XDocument waresXml, LangageResolver resolver)
         {
             _WaresXml = waresXml;
             _Resolver = resolver;
@@ -94,7 +93,7 @@ CREATE TABLE IF NOT EXISTS Ware
                 );
 
                 cmd.CommandText = "INSERT INTO Ware (WareID, WareGroupID, TransportTypeID, Name, Description, FactoryName, Volume, MinPrice, AvgPrice, MaxPrice) VALUES(@wareID, @wareGroupID, @transportTypeID, @name, @description, @factoryName, @volume, @minPrice, @avgPrice, @maxPrice)";
-                foreach(var item in items)
+                foreach (var item in items)
                 {
                     cmd.Parameters.Clear();
 

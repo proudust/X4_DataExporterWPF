@@ -1,17 +1,12 @@
-﻿using LibX4.FileSystem;
+﻿using System.Data.SQLite;
 using LibX4.Lang;
-using System.Data;
-using System.Data.SQLite;
-using System.Linq;
-using System.Xml.Linq;
-using System.Xml.XPath;
 
-namespace X4_DataExporterWPF.Export.Equipment
+namespace X4_DataExporterWPF.Export
 {
     /// <summary>
     /// 装備種別情報抽出用クラス
     /// </summary>
-    public class EquipmentType : IExport
+    public class EquipmentTypeExporter : IExporter
     {
         /// <summary>
         /// 言語解決用オブジェクト
@@ -23,7 +18,7 @@ namespace X4_DataExporterWPF.Export.Equipment
         /// コンストラクタ
         /// </summary>
         /// <param name="resolver">言語解決用オブジェクト</param>
-        public EquipmentType(LangageResolver resolver)
+        public EquipmentTypeExporter(LangageResolver resolver)
         {
             _Resolver = resolver;
         }

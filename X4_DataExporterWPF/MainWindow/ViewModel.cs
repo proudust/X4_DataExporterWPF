@@ -1,8 +1,9 @@
-﻿using Microsoft.WindowsAPICodePack.Dialogs;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Windows;
 using System.Windows.Input;
+using Microsoft.WindowsAPICodePack.Dialogs;
 using X4_ComplexCalculator.Common;
 using X4_DataExporterWPF.Common;
 
@@ -180,7 +181,7 @@ namespace X4_DataExporterWPF.MainWindow
         {
             var dlg = new CommonOpenFileDialog();
             dlg.IsFolderPicker = true;
-            dlg.InitialDirectory = System.IO.Path.GetDirectoryName(InDirPath);
+            dlg.InitialDirectory = Path.GetDirectoryName(InDirPath);
 
             if (dlg.ShowDialog() == CommonFileDialogResult.Ok)
             {
@@ -195,11 +196,11 @@ namespace X4_DataExporterWPF.MainWindow
         private void SelectOutPath()
         {
             var dlg = new CommonSaveFileDialog();
-            dlg.InitialDirectory = System.IO.Path.GetDirectoryName(OutFilePath);
+            dlg.InitialDirectory = Path.GetDirectoryName(OutFilePath);
             dlg.Filters.Add(new CommonFileDialogFilter("Database file", "*.db"));
             dlg.Filters.Add(new CommonFileDialogFilter("SQLite3 file", "*.sqlite"));
             dlg.Filters.Add(new CommonFileDialogFilter("All", "*.*"));
-            dlg.DefaultFileName = System.IO.Path.GetFileName(OutFilePath);
+            dlg.DefaultFileName = Path.GetFileName(OutFilePath);
 
             if (dlg.ShowDialog() == CommonFileDialogResult.Ok)
             {
