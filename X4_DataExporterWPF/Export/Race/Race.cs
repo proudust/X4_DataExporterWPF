@@ -5,7 +5,7 @@ using System.Xml.Linq;
 using LibX4.FileSystem;
 using LibX4.Lang;
 
-namespace X4_DataExporterWPF.Export.Race
+namespace X4_DataExporterWPF.Export
 {
     /// <summary>
     /// 種族情報抽出用クラス

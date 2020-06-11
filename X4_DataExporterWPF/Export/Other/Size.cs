@@ -1,7 +1,7 @@
 ﻿using System.Data.SQLite;
 using LibX4.Lang;
 
-namespace X4_DataExporterWPF.Export.Other
+namespace X4_DataExporterWPF.Export
 {
     /// <summary>
     /// サイズ情報抽出用クラス

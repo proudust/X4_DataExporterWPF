@@ -5,7 +5,7 @@ using System.Xml.XPath;
 using LibX4.FileSystem;
 using LibX4.Lang;
 
-namespace X4_DataExporterWPF.Export.Other
+namespace X4_DataExporterWPF.Export
 {
     class Map : IExport
     {

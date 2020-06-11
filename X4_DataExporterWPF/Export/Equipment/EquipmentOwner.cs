@@ -4,7 +4,7 @@ using System.Linq;
 using System.Xml.Linq;
 using System.Xml.XPath;
 
-namespace X4_DataExporterWPF.Export.Equipment
+namespace X4_DataExporterWPF.Export
 {
     /// <summary>
     /// 装備保有派閥抽出用クラス

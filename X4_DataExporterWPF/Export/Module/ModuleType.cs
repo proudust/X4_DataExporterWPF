@@ -2,7 +2,7 @@
 using LibX4.Lang;
 
 
-namespace X4_DataExporterWPF.Export.Module
+namespace X4_DataExporterWPF.Export
 {
     /// <summary>
     /// モジュール種別抽出用クラス

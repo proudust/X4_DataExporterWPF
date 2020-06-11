@@ -6,7 +6,7 @@ using System.Xml.XPath;
 using LibX4.FileSystem;
 using LibX4.Lang;
 
-namespace X4_DataExporterWPF.Export.Ware
+namespace X4_DataExporterWPF.Export
 {
     /// <summary>
     /// ウェア種別抽出用クラス

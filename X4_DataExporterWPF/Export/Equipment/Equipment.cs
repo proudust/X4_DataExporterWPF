@@ -6,7 +6,7 @@ using System.Xml.XPath;
 using LibX4.FileSystem;
 using LibX4.Lang;
 
-namespace X4_DataExporterWPF.Export.Equipment
+namespace X4_DataExporterWPF.Export
 {
     /// <summary>
     /// 装備情報抽出用クラス
@@ -91,11 +91,11 @@ CREATE TABLE IF NOT EXISTS Equipment
                 foreach (var item in items)
                 {
                     cmd.Parameters.Clear();
-                    cmd.Parameters.AddWithValue("@equipmentID",     item.Item1);
-                    cmd.Parameters.AddWithValue("@macroName",       item.Item2);
+                    cmd.Parameters.AddWithValue("@equipmentID", item.Item1);
+                    cmd.Parameters.AddWithValue("@macroName", item.Item2);
                     cmd.Parameters.AddWithValue("@equipmentTypeID", item.Item3);
-                    cmd.Parameters.AddWithValue("@sizeID",          item.Item4);
-                    cmd.Parameters.AddWithValue("@name",            item.Item5);
+                    cmd.Parameters.AddWithValue("@sizeID", item.Item4);
+                    cmd.Parameters.AddWithValue("@name", item.Item5);
 
                     cmd.ExecuteNonQuery();
                 }

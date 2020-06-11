@@ -5,7 +5,7 @@ using System.Xml.Linq;
 using System.Xml.XPath;
 using LibX4.Lang;
 
-namespace X4_DataExporterWPF.Export.Ware
+namespace X4_DataExporterWPF.Export
 {
     public class Ware : IExport
     {

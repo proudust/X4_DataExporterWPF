@@ -4,7 +4,7 @@ using System.Linq;
 using System.Xml.Linq;
 using System.Xml.XPath;
 
-namespace X4_DataExporterWPF.Export.Ware
+namespace X4_DataExporterWPF.Export
 {
     /// <summary>
     /// ウェア生産時の追加効果情報抽出用クラス

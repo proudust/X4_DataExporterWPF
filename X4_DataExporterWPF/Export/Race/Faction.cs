@@ -6,7 +6,7 @@ using System.Xml.XPath;
 using LibX4.FileSystem;
 using LibX4.Lang;
 
-namespace X4_DataExporterWPF.Export.Race
+namespace X4_DataExporterWPF.Export
 {
     /// <summary>
     /// 派閥情報抽出用クラス

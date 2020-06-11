@@ -1,7 +1,7 @@
 ﻿using System.Data.SQLite;
 using LibX4.Lang;
 
-namespace X4_DataExporterWPF.Export.Equipment
+namespace X4_DataExporterWPF.Export
 {
     /// <summary>
     /// 装備種別情報抽出用クラス

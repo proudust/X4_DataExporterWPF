@@ -8,11 +8,6 @@ using LibX4.FileSystem;
 using X4_ComplexCalculator.Common;
 using X4_DataExporterWPF.Common;
 using X4_DataExporterWPF.Export;
-using X4_DataExporterWPF.Export.Equipment;
-using X4_DataExporterWPF.Export.Module;
-using X4_DataExporterWPF.Export.Other;
-using X4_DataExporterWPF.Export.Race;
-using X4_DataExporterWPF.Export.Ware;
 
 namespace X4_DataExporterWPF.MainWindow
 {
@@ -235,7 +230,7 @@ namespace X4_DataExporterWPF.MainWindow
                     // 共通
                     new Export.Common(),                        // 共通情報
                     new Effect(),                               // 追加効果情報
-                    new Export.Other.Size(resolver),            // サイズ情報
+                    new Export.Size(resolver),                  // サイズ情報
                     new TransportType(resolver),                // カーゴ種別情報
                     new Race(catFile, resolver),                // 種族情報
                     new Faction(catFile, resolver),             // 派閥情報

@@ -5,7 +5,7 @@ using System.Xml.Linq;
 using System.Xml.XPath;
 
 
-namespace X4_DataExporterWPF.Export.Module
+namespace X4_DataExporterWPF.Export
 {
     /// <summary>
     /// モジュール建造に関する情報抽出用クラス
