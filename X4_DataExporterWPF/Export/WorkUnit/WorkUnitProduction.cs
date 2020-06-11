@@ -45,8 +45,9 @@ CREATE TABLE IF NOT EXISTS WorkUnitProduction
     WorkUnitID  TEXT    NOT NULL,
     Time        INTEGER NOT NULL,
     Amount      INTEGER NOT NULL,
-    Method      TEXT    NOT NULL
-)";
+    Method      TEXT    NOT NULL,
+    PRIMARY KEY (WorkUnitID, Method)
+) WITHOUT ROWID";
                 cmd.ExecuteNonQuery();
             }
 

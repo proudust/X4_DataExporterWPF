@@ -64,7 +64,7 @@ CREATE TABLE IF NOT EXISTS Module
     MaxWorkers      INTEGER NOT NULL,
     WorkersCapacity INTEGER NOT NULL,
     FOREIGN KEY (ModuleTypeID)  REFERENCES ModuleType(ModuleTypeID)
-)";
+) WITHOUT ROWID";
                 cmd.ExecuteNonQuery();
             }
 
@@ -98,15 +98,6 @@ CREATE TABLE IF NOT EXISTS Module
 
                     cmd.ExecuteNonQuery();
                 }
-            }
-
-
-            ///////////////
-            // Index作成 //
-            ///////////////
-            {
-                cmd.CommandText = "CREATE INDEX ModuleIndex ON Module(ModuleID)";
-                cmd.ExecuteNonQuery();
             }
         }
 

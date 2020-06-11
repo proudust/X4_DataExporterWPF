@@ -44,9 +44,10 @@ CREATE TABLE IF NOT EXISTS WareEffect
     Method      TEXT    NOT NULL,
     EffectID    TEXT    NOT NULL,
     Product     REAL    NOT NULL,
+    PRIMARY KEY (WareID, Method, EffectID),
     FOREIGN KEY (WareID)    REFERENCES Ware(WareID),
     FOREIGN KEY (EffectID)  REFERENCES Effect(EffectID)
-)";
+) WITHOUT ROWID";
                 cmd.ExecuteNonQuery();
             }
 
@@ -89,15 +90,6 @@ CREATE TABLE IF NOT EXISTS WareEffect
 
                     cmd.ExecuteNonQuery();
                 }
-            }
-
-
-            ///////////////
-            // Index作成 //
-            ///////////////
-            {
-                cmd.CommandText = "CREATE INDEX WareEffectIndex ON WareEffect(WareID, Method, EffectID)";
-                cmd.ExecuteNonQuery();
             }
         }
     }

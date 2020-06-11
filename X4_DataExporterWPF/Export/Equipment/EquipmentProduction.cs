@@ -45,8 +45,9 @@ CREATE TABLE IF NOT EXISTS EquipmentProduction
     EquipmentID TEXT    NOT NULL,
     Method      TEXT    NOT NULL,
     Time        REAL    NOT NULL,
+    PRIMARY KEY (EquipmentID, Method),
     FOREIGN KEY (EquipmentID)   REFERENCES Equipment(EquipmentID)
-)";
+) WITHOUT ROWID";
                 cmd.ExecuteNonQuery();
             }
 

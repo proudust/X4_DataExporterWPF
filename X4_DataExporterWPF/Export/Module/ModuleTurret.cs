@@ -53,9 +53,10 @@ CREATE TABLE IF NOT EXISTS ModuleTurret
     ModuleID    TEXT    NOT NULL,
     SizeID      TEXT    NOT NULL,
     Amount      INTEGER NOT NULL,
+    PRIMARY KEY (ModuleID, SizeID),
     FOREIGN KEY (ModuleID)  REFERENCES Module(ModuleID),
     FOREIGN KEY (SizeID)    REFERENCES Size(SizeID)
-)";
+) WITHOUT ROWID";
                 cmd.ExecuteNonQuery();
             }
 
@@ -85,15 +86,6 @@ CREATE TABLE IF NOT EXISTS ModuleTurret
 
                     cmd.ExecuteNonQuery();
                 }
-            }
-
-
-            ///////////////
-            // Index作成 //
-            ///////////////
-            {
-                cmd.CommandText = "CREATE INDEX ModuleTurretIndex ON ModuleTurret(ModuleID)";
-                cmd.ExecuteNonQuery();
             }
         }
 

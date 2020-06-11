@@ -65,7 +65,7 @@ CREATE TABLE IF NOT EXISTS Equipment
     Name            TEXT    NOT NULL,
     FOREIGN KEY (EquipmentTypeID)   REFERENCES EquipmentType(EquipmentTypeID),
     FOREIGN KEY (SizeID)            REFERENCES Size(SizeID)
-)";
+) WITHOUT ROWID";
                 cmd.ExecuteNonQuery();
             }
 
@@ -99,15 +99,6 @@ CREATE TABLE IF NOT EXISTS Equipment
 
                     cmd.ExecuteNonQuery();
                 }
-            }
-
-
-            ///////////////
-            // Index作成 //
-            ///////////////
-            {
-                cmd.CommandText = "CREATE INDEX EquipmentIndex ON Equipment(EquipmentID)";
-                cmd.ExecuteNonQuery();
             }
         }
 

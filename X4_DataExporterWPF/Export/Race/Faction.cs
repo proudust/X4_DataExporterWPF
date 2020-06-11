@@ -56,7 +56,7 @@ CREATE TABLE IF NOT EXISTS Faction
     RaceID      TEXT    NOT NULL,
     ShortName   TEXT    NOT NULL,
     FOREIGN KEY (RaceID)   REFERENCES Race(RaceID)
-)";
+) WITHOUT ROWID";
                 cmd.ExecuteNonQuery();
             }
 
@@ -92,15 +92,6 @@ CREATE TABLE IF NOT EXISTS Faction
 
                     cmd.ExecuteNonQuery();
                 }
-            }
-
-
-            ///////////////
-            // Index作成 //
-            ///////////////
-            {
-                cmd.CommandText = "CREATE INDEX FactionIndex ON Faction(FactionID)";
-                cmd.ExecuteNonQuery();
             }
         }
     }

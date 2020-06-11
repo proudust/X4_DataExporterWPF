@@ -46,8 +46,9 @@ CREATE TABLE IF NOT EXISTS WorkUnitResource
     Method      TEXT    NOT NULL,
     WareID      TEXT    NOT NULL,
     Amount      INTEGER NOT NULL,
+    PRIMARY KEY (WorkUnitID, Method, WareID),
     FOREIGN KEY (WareID)   REFERENCES Ware(WareID)
-)";
+) WITHOUT ROWID";
                 cmd.ExecuteNonQuery();
             }
 
@@ -90,14 +91,6 @@ CREATE TABLE IF NOT EXISTS WorkUnitResource
 
                     cmd.ExecuteNonQuery();
                 }
-            }
-
-            ///////////////
-            // Index作成 //
-            ///////////////
-            {
-                cmd.CommandText = "CREATE INDEX WorkUnitResourceIndex ON WorkUnitResource(WorkUnitID)";
-                cmd.ExecuteNonQuery();
             }
         }
     }

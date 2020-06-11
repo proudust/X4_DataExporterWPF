@@ -44,9 +44,10 @@ CREATE TABLE IF NOT EXISTS ModuleOwner
 (
     ModuleID    TEXT    NOT NULL,
     FactionID   TEXT    NOT NULL,
+    PRIMARY KEY (ModuleID, FactionID),
     FOREIGN KEY (ModuleID)  REFERENCES Module(ModuleID),
     FOREIGN KEY (FactionID) REFERENCES Faction(FactionID)
-)";
+) WITHOUT ROWID";
                 cmd.ExecuteNonQuery();
             }
 
@@ -81,14 +82,6 @@ CREATE TABLE IF NOT EXISTS ModuleOwner
                     cmd.Parameters.AddWithValue("factionID", item.Item2);
                     cmd.ExecuteNonQuery();
                 }
-            }
-
-            ///////////////
-            // Index作成 //
-            ///////////////
-            {
-                cmd.CommandText = "CREATE INDEX ModuleOwnerIndex ON ModuleOwner(ModuleID)";
-                cmd.ExecuteNonQuery();
             }
         }
     }

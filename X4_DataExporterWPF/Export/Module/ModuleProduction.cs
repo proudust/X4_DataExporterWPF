@@ -47,8 +47,9 @@ CREATE TABLE IF NOT EXISTS ModuleProduction
     ModuleID    TEXT    NOT NULL,
     Method      TEXT    NOT NULL,
     Time        REAL    NOT NULL,
+    PRIMARY KEY (ModuleID, Method),
     FOREIGN KEY (ModuleID)  REFERENCES Module(ModuleID)
-)";
+) WITHOUT ROWID";
                 cmd.ExecuteNonQuery();
             }
 
@@ -86,15 +87,6 @@ CREATE TABLE IF NOT EXISTS ModuleProduction
 
                     cmd.ExecuteNonQuery();
                 }
-            }
-
-
-            ///////////////
-            // Index作成 //
-            ///////////////
-            {
-                cmd.CommandText = "";
-                cmd.ExecuteNonQuery();
             }
         }
     }

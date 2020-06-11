@@ -53,9 +53,10 @@ CREATE TABLE IF NOT EXISTS ModuleProduct
     ModuleID    TEXT    NOT NULL,
     WareID      TEXT    NOT NULL,
     Method      TEXT    NOT NULL,
+    PRIMARY KEY (ModuleID, WareID, Method),
     FOREIGN KEY (ModuleID)  REFERENCES Module(ModuleID),
     FOREIGN KEY (WareID)    REFERENCES Ware(WareID)
-)";
+)WITHOUT ROWID";
                 cmd.ExecuteNonQuery();
             }
 
@@ -85,14 +86,6 @@ CREATE TABLE IF NOT EXISTS ModuleProduct
 
                     cmd.ExecuteNonQuery();
                 }
-            }
-
-            ///////////////
-            // Index作成 //
-            ///////////////
-            {
-                cmd.CommandText = "CREATE INDEX ModuleProductIndex ON ModuleProduct(ModuleID)";
-                cmd.ExecuteNonQuery();
             }
         }
 

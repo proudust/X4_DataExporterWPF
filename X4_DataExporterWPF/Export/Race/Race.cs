@@ -53,7 +53,7 @@ CREATE TABLE IF NOT EXISTS Race
     RaceID      TEXT    NOT NULL PRIMARY KEY,
     Name        TEXT    NOT NULL,
     ShortName   TEXT    NOT NULL
-)";
+) WITHOUT ROWID";
                 cmd.ExecuteNonQuery();
             }
 
@@ -86,15 +86,6 @@ CREATE TABLE IF NOT EXISTS Race
                     cmd.Parameters.AddWithValue("@shortName",   item.Item3);
                     cmd.ExecuteNonQuery();
                 }
-            }
-
-
-            ///////////////
-            // Index作成 //
-            ///////////////
-            {
-                cmd.CommandText = "CREATE INDEX RaceIndex ON Race(RaceID)";
-                cmd.ExecuteNonQuery();
             }
         }
     }

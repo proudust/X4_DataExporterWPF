@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS Common
 (
     Item    TEXT    NOT NULL PRIMARY KEY,
     Value   INTEGER
-)";
+) WITHOUT ROWID";
                 cmd.ExecuteNonQuery();
             }
 
@@ -29,15 +29,6 @@ CREATE TABLE IF NOT EXISTS Common
             ////////////////
             {
                 cmd.CommandText = "INSERT INTO Common (Item, Value) VALUES('FormatVersion', 1)";
-                cmd.ExecuteNonQuery();
-            }
-
-
-            ///////////////
-            // Index作成 //
-            ///////////////
-            {
-                cmd.CommandText = "CREATE INDEX CommonIndex ON Common(Item)";
                 cmd.ExecuteNonQuery();
             }
         }

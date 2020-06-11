@@ -52,9 +52,10 @@ CREATE TABLE IF NOT EXISTS ModuleStorage
     ModuleID        TEXT    NOT NULL,
     TransportTypeID TEXT    NOT NULL,
     Amount          INTEGER NOT NULL,
+    PRIMARY KEY (ModuleID, TransportTypeID),
     FOREIGN KEY (ModuleID)          REFERENCES Module(ModuleID),
     FOREIGN KEY (TransportTypeID)   REFERENCES TransportType(TransportTypeID)
-)";
+) WITHOUT ROWID";
                 cmd.ExecuteNonQuery();
             }
 

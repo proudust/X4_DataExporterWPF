@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS ModuleType
 (
     ModuleTypeID    TEXT    NOT NULL PRIMARY KEY,
     Name            TEXT    NOT NULL
-)";
+) WITHOUT ROWID";
                 cmd.ExecuteNonQuery();
             }
 
@@ -73,15 +73,6 @@ CREATE TABLE IF NOT EXISTS ModuleType
 
                     cmd.ExecuteNonQuery();
                 }
-            }
-
-
-            ///////////////
-            // Index作成 //
-            ///////////////
-            {
-                cmd.CommandText = "CREATE INDEX ModuleTypeIndex ON ModuleType(ModuleTypeID)";
-                cmd.ExecuteNonQuery();
             }
         }
     }

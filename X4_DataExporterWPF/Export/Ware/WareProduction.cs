@@ -54,8 +54,9 @@ CREATE TABLE IF NOT EXISTS WareProduction
     Name    TEXT    NOT NULL,
     Amount  INTEGER NOT NULL,
     Time    REAL    NOT NULL,
+    PRIMARY KEY (WareID, Method),
     FOREIGN KEY (WareID)   REFERENCES Ware(WareID)
-)";
+) WITHOUT ROWID";
                 cmd.ExecuteNonQuery();
             }
 
@@ -96,15 +97,6 @@ CREATE TABLE IF NOT EXISTS WareProduction
 
                     cmd.ExecuteNonQuery();
                 }
-            }
-
-
-            ///////////////
-            // Index作成 //
-            ///////////////
-            {
-                cmd.CommandText = "CREATE INDEX WareProductionIndex ON WareProduction(WareID, Method)";
-                cmd.ExecuteNonQuery();
             }
         }
     }

@@ -59,7 +59,7 @@ CREATE TABLE IF NOT EXISTS Ware
     MaxPrice        INTEGER NOT NULL,
     FOREIGN KEY (WareGroupID)       REFERENCES WareGroup(WareGroupID),
     FOREIGN KEY (TransportTypeID)   REFERENCES TransportType(TransportTypeID)
-)";
+) WITHOUT ROWID";
                 cmd.ExecuteNonQuery();
             }
 
@@ -111,15 +111,6 @@ CREATE TABLE IF NOT EXISTS Ware
 
                     cmd.ExecuteNonQuery();
                 }
-            }
-
-
-            ///////////////
-            // Index作成 //
-            ///////////////
-            {
-                cmd.CommandText = "CREATE INDEX WareIndex ON Ware(WareID)";
-                cmd.ExecuteNonQuery();
             }
         }
     }

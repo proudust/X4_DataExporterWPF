@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS EquipmentType
 (
     EquipmentTypeID TEXT    NOT NULL PRIMARY KEY,
     Name            TEXT    NOT NULL
-)";
+) WITHOUT ROWID";
                 cmd.ExecuteNonQuery();
             }
 
@@ -76,15 +76,6 @@ CREATE TABLE IF NOT EXISTS EquipmentType
 
                     cmd.ExecuteNonQuery();
                 }
-            }
-
-
-            ///////////////
-            // Index作成 //
-            ///////////////
-            {
-                cmd.CommandText = "CREATE INDEX EquipmentTypeIndex ON EquipmentType(EquipmentTypeID)";
-                cmd.ExecuteNonQuery();
             }
         }
     }

@@ -45,9 +45,10 @@ CREATE TABLE IF NOT EXISTS EquipmentResource
     Method      TEXT    NOT NULL,
     NeedWareID  TEXT    NOT NULL,
     Amount      INTEGER NOT NULL,
+    PRIMARY KEY (EquipmentID, Method, NeedWareID),
     FOREIGN KEY (EquipmentID)   REFERENCES Equipment(EquipmentID),
     FOREIGN KEY (NeedWareID)    REFERENCES Ware(WareID)
-)";
+) WITHOUT ROWID";
                 cmd.ExecuteNonQuery();
             }
 

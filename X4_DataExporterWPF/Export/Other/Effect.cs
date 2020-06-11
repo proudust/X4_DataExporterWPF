@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS Effect
 (
     EffectID    TEXT    NOT NULL PRIMARY KEY,
     Name        TEXT    NOT NULL
-)";
+) WITHOUT ROWID";
                 cmd.ExecuteNonQuery();
             }
 
@@ -40,15 +40,6 @@ CREATE TABLE IF NOT EXISTS Effect
                     cmd.Parameters.AddWithValue("name", item.Item2);
                     cmd.ExecuteNonQuery();
                 }
-            }
-
-
-            ///////////////
-            // Index作成 //
-            ///////////////
-            {
-                cmd.CommandText = "CREATE INDEX EffectIndex ON Effect(EffectID)";
-                cmd.ExecuteNonQuery();
             }
         }
     }

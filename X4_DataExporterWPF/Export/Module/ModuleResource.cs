@@ -47,9 +47,10 @@ CREATE TABLE IF NOT EXISTS ModuleResource
     Method      TEXT    NOT NULL,
     WareID      TEXT    NOT NULL,
     Amount      INTEGER NOT NULL,
+    PRIMARY KEY (ModuleID, Method, WareID),
     FOREIGN KEY (ModuleID)  REFERENCES Module(ModuleID),
     FOREIGN KEY (WareID)    REFERENCES Ware(WareID)
-)";
+) WITHOUT ROWID";
                 cmd.ExecuteNonQuery();
             }
 
@@ -92,15 +93,6 @@ CREATE TABLE IF NOT EXISTS ModuleResource
 
                     cmd.ExecuteNonQuery();
                 }
-            }
-
-
-            ///////////////
-            // Index作成 //
-            ///////////////
-            {
-                cmd.CommandText = "";
-                cmd.ExecuteNonQuery();
             }
         }
     }

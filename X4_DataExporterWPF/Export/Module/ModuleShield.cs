@@ -52,9 +52,10 @@ CREATE TABLE IF NOT EXISTS ModuleShield
     ModuleID    TEXT    NOT NULL,
     SizeID      TEXT    NOT NULL,
     Amount      INTEGER NOT NULL,
+    PRIMARY KEY (ModuleID, SizeID),
     FOREIGN KEY (ModuleID)  REFERENCES Module(ModuleID),
     FOREIGN KEY (SizeID)    REFERENCES Size(SizeID)
-)";
+) WITHOUT ROWID";
                 cmd.ExecuteNonQuery();
             }
 
@@ -84,15 +85,6 @@ CREATE TABLE IF NOT EXISTS ModuleShield
 
                     cmd.ExecuteNonQuery();
                 }
-            }
-
-
-            ///////////////
-            // Index作成 //
-            ///////////////
-            {
-                cmd.CommandText = "CREATE INDEX ModuleShieldIndex ON ModuleShield(ModuleID)";
-                cmd.ExecuteNonQuery();
             }
         }
 

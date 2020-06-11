@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS Size
 (
     SizeID  TEXT    NOT NULL PRIMARY KEY,
     Name    TEXT    NOT NULL
-)";
+) WITHOUT ROWID";
                 cmd.ExecuteNonQuery();
             }
 
@@ -66,15 +66,6 @@ CREATE TABLE IF NOT EXISTS Size
 
                     cmd.ExecuteNonQuery();
                 }
-            }
-
-
-            ///////////////
-            // Index作成 //
-            ///////////////
-            {
-                cmd.CommandText = "CREATE INDEX SizeIndex ON Size(SizeID)";
-                cmd.ExecuteNonQuery();
             }
         }
     }

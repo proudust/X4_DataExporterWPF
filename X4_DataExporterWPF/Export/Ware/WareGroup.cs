@@ -56,7 +56,7 @@ CREATE TABLE IF NOT EXISTS WareGroup
     FactoryName TEXT    NOT NULL,
     Icon        TEXT    NOT NULL,
     Tier        INTEGER NOT NULL
-)";
+) WITHOUT ROWID";
                 cmd.ExecuteNonQuery();
             }
 
@@ -93,15 +93,6 @@ CREATE TABLE IF NOT EXISTS WareGroup
 
                     cmd.ExecuteNonQuery();
                 }
-            }
-
-
-            ///////////////
-            // Index作成 //
-            ///////////////
-            {
-                cmd.CommandText = "CREATE INDEX WareGroupIndex ON WareGroup(WareGroupID)";
-                cmd.ExecuteNonQuery();
             }
         }
     }

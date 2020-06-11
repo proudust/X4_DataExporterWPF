@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS TransportType
 (
     TransportTypeID TEXT    NOT NULL PRIMARY KEY,
     Name            TEXT    NOT NULL
-)";
+) WITHOUT ROWID";
                 cmd.ExecuteNonQuery();
             }
 
@@ -65,15 +65,6 @@ CREATE TABLE IF NOT EXISTS TransportType
                     cmd.Parameters.AddWithValue("name", Resolver.Resolve(item.Item2));
                     cmd.ExecuteNonQuery();
                 }
-            }
-
-
-            ///////////////
-            // Index作成 //
-            ///////////////
-            {
-                cmd.CommandText = "CREATE INDEX TransportTypeIndex ON TransportType(TransportTypeID)";
-                cmd.ExecuteNonQuery();
             }
         }
     }

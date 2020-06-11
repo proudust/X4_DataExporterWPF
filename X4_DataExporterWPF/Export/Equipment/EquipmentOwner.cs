@@ -44,9 +44,10 @@ CREATE TABLE IF NOT EXISTS EquipmentOwner
 (
     EquipmentID TEXT    NOT NULL,
     FactionID   TEXT    NOT NULL,
+    PRIMARY KEY (EquipmentID, FactionID),
     FOREIGN KEY (EquipmentID)   REFERENCES Equipment(EquipmentID),
     FOREIGN KEY (FactionID)     REFERENCES Faction(FactionID)
-)";
+) WITHOUT ROWID";
                 cmd.ExecuteNonQuery();
             }
 
