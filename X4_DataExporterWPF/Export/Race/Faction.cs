@@ -1,10 +1,10 @@
-﻿using LibX4.FileSystem;
-using LibX4.Lang;
-using System.Data;
+﻿using System.Data;
+using System.Data.SQLite;
 using System.Linq;
 using System.Xml.Linq;
-using System.Data.SQLite;
 using System.Xml.XPath;
+using LibX4.FileSystem;
+using LibX4.Lang;
 
 namespace X4_DataExporterWPF.Export.Race
 {
@@ -82,7 +82,7 @@ CREATE TABLE IF NOT EXISTS Faction
                 );
 
                 cmd.CommandText = "INSERT INTO Faction (FactionID, Name, RaceID, ShortName) values (@factionID, @name, @raceID, @shortName)";
-                foreach(var item in items)
+                foreach (var item in items)
                 {
                     cmd.Parameters.Clear();
                     cmd.Parameters.AddWithValue("@factionID",   item.Item1);

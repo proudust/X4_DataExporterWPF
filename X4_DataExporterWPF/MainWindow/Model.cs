@@ -1,16 +1,16 @@
-﻿using LibX4.FileSystem;
-using System;
+﻿using System;
 using System.Data.SQLite;
 using System.Linq;
 using System.Windows;
 using System.Windows.Threading;
 using System.Xml.XPath;
+using LibX4.FileSystem;
 using X4_ComplexCalculator.Common;
 using X4_DataExporterWPF.Common;
 using X4_DataExporterWPF.Export;
-using X4_DataExporterWPF.Export.Other;
 using X4_DataExporterWPF.Export.Equipment;
 using X4_DataExporterWPF.Export.Module;
+using X4_DataExporterWPF.Export.Other;
 using X4_DataExporterWPF.Export.Race;
 using X4_DataExporterWPF.Export.Ware;
 
@@ -188,7 +188,7 @@ namespace X4_DataExporterWPF.MainWindow
 
                 Langages.Reset(langages);
             }
-            catch(Exception)
+            catch (Exception)
             {
                 Langages.Clear();
             }

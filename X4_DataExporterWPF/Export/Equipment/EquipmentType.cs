@@ -1,10 +1,5 @@
-﻿using LibX4.FileSystem;
+﻿using System.Data.SQLite;
 using LibX4.Lang;
-using System.Data;
-using System.Data.SQLite;
-using System.Linq;
-using System.Xml.Linq;
-using System.Xml.XPath;
 
 namespace X4_DataExporterWPF.Export.Equipment
 {

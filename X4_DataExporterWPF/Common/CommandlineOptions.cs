@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using CommandLine;
-using CommandLine.Text;
+﻿using CommandLine;
 
 namespace X4_DataExporterWPF.Common
 {
@@ -18,7 +14,7 @@ namespace X4_DataExporterWPF.Common
         /// <summary>
         /// 出力先ファイルパス初期値
         /// </summary>
-        [Option('o', Required = false, HelpText = "Initial value of the output file path", Default ="")]
+        [Option('o', Required = false, HelpText = "Initial value of the output file path", Default = "")]
         public string OutputFilePath { get; set; }
     }
 }

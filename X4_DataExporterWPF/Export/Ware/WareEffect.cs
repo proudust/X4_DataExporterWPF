@@ -62,7 +62,7 @@ CREATE TABLE IF NOT EXISTS WareEffect
                     (
                         prod => prod.XPathSelectElements("effects/effect").Select
                         (
-                            effect => 
+                            effect =>
                             (
                                 ware.Attribute("id")?.Value,
                                 prod.Attribute("method")?.Value,

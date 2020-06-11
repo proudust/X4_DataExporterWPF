@@ -1,8 +1,8 @@
-﻿using Microsoft.WindowsAPICodePack.Dialogs;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Input;
+using Microsoft.WindowsAPICodePack.Dialogs;
 using X4_ComplexCalculator.Common;
 using X4_DataExporterWPF.Common;
 

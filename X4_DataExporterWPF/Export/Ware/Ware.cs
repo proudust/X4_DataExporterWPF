@@ -1,10 +1,9 @@
-﻿using LibX4.Lang;
-using System.Data;
+﻿using System.Data;
 using System.Data.SQLite;
-using System.Diagnostics;
 using System.Linq;
 using System.Xml.Linq;
 using System.Xml.XPath;
+using LibX4.Lang;
 
 namespace X4_DataExporterWPF.Export.Ware
 {
@@ -94,7 +93,7 @@ CREATE TABLE IF NOT EXISTS Ware
                 );
 
                 cmd.CommandText = "INSERT INTO Ware (WareID, WareGroupID, TransportTypeID, Name, Description, FactoryName, Volume, MinPrice, AvgPrice, MaxPrice) VALUES(@wareID, @wareGroupID, @transportTypeID, @name, @description, @factoryName, @volume, @minPrice, @avgPrice, @maxPrice)";
-                foreach(var item in items)
+                foreach (var item in items)
                 {
                     cmd.Parameters.Clear();
 

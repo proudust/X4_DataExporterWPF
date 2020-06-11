@@ -1,6 +1,4 @@
-﻿using LibX4.FileSystem;
-using LibX4.Lang;
-using System.Data;
+﻿using System.Data;
 using System.Data.SQLite;
 using System.Linq;
 using System.Xml.Linq;
@@ -63,7 +61,7 @@ CREATE TABLE IF NOT EXISTS EquipmentResource
                     (
                         prod => prod.XPathSelectElements("primary/ware").Select
                         (
-                            ware => 
+                            ware =>
                             (
                                 equipment.Attribute("id")?.Value ?? "",
                                 prod.Attribute("method")?.Value ?? "",

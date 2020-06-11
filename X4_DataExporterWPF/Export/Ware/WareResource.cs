@@ -21,10 +21,10 @@ namespace X4_DataExporterWPF.Export.Ware
         /// コンストラクタ
         /// </summary>
         /// <param name="waresXml">ウェア情報xml</param>
-       public WareResource(XDocument waresXml)
-       {
+        public WareResource(XDocument waresXml)
+        {
             _WaresXml = waresXml;
-       }
+        }
 
 
 
@@ -63,7 +63,7 @@ CREATE TABLE IF NOT EXISTS WareResource
                     (
                         prod => prod.XPathSelectElements("primary/ware").Select
                         (
-                            needWare => 
+                            needWare =>
                             (
                                 ware.Attribute("id")?.Value,
                                 prod.Attribute("method")?.Value,
@@ -81,7 +81,7 @@ CREATE TABLE IF NOT EXISTS WareResource
                 );
 
                 cmd.CommandText = "INSERT INTO WareResource (WareID, Method, NeedWareID, Amount) values (@wareID, @method, @needWareID, @amount)";
-                foreach(var item in items)
+                foreach (var item in items)
                 {
                     cmd.Parameters.Clear();
                     cmd.Parameters.AddWithValue("@wareID",      item.Item1);
