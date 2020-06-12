@@ -1,4 +1,5 @@
-﻿using System.Data.SQLite;
+﻿using System.Data;
+using Dapper;
 using LibX4.Lang;
 using X4_DataExporterWPF.Entity;
 
@@ -31,19 +32,18 @@ namespace X4_DataExporterWPF.Export
         /// 抽出処理
         /// </summary>
         /// <param name="cmd"></param>
-        public void Export(SQLiteCommand cmd)
+        public void Export(IDbConnection connection)
         {
             //////////////////
             // テーブル作成 //
             //////////////////
             {
-                cmd.CommandText = @"
+                connection.Execute(@"
 CREATE TABLE IF NOT EXISTS ModuleType
 (
     ModuleTypeID    TEXT    NOT NULL PRIMARY KEY,
     Name            TEXT    NOT NULL
-) WITHOUT ROWID";
-                cmd.ExecuteNonQuery();
+) WITHOUT ROWID");
             }
 
 
@@ -53,26 +53,18 @@ CREATE TABLE IF NOT EXISTS ModuleType
             {
                 // TODO:可能ならファイルから抽出する
                 ModuleType[] items = {
-                    new ModuleType("buildmodule",         "{20104,  69901}"),
-                    new ModuleType("connectionmodule",    "{20104,  59901}"),
-                    new ModuleType("defencemodule",       "{20104,  49901}"),
-                    new ModuleType("dockarea",            "{20104,  70001}"),
-                    new ModuleType("habitation",          "{20104,  39901}"),
-                    new ModuleType("pier",                "{20104,  71101}"),
-                    new ModuleType("production",          "{20104,  19901}"),
-                    new ModuleType("storage",             "{20104,  29901}"),
-                    new ModuleType("ventureplatform",     "{20104, 101901}")
+                    new ModuleType("buildmodule",         _Resolver.Resolve("{20104,  69901}")),
+                    new ModuleType("connectionmodule",    _Resolver.Resolve("{20104,  59901}")),
+                    new ModuleType("defencemodule",       _Resolver.Resolve("{20104,  49901}")),
+                    new ModuleType("dockarea",            _Resolver.Resolve("{20104,  70001}")),
+                    new ModuleType("habitation",          _Resolver.Resolve("{20104,  39901}")),
+                    new ModuleType("pier",                _Resolver.Resolve("{20104,  71101}")),
+                    new ModuleType("production",          _Resolver.Resolve("{20104,  19901}")),
+                    new ModuleType("storage",             _Resolver.Resolve("{20104,  29901}")),
+                    new ModuleType("ventureplatform",     _Resolver.Resolve("{20104, 101901}")),
                 };
 
-                cmd.CommandText = "INSERT INTO ModuleType(ModuleTypeID, Name) values(@moduleTypeID, @name)";
-                foreach (var item in items)
-                {
-                    cmd.Parameters.Clear();
-                    cmd.Parameters.AddWithValue("@moduleTypeID", item.ModuleTypeID);
-                    cmd.Parameters.AddWithValue("@name",         _Resolver.Resolve(item.Name));
-
-                    cmd.ExecuteNonQuery();
-                }
+                connection.Execute("INSERT INTO ModuleType(ModuleTypeID, Name) VALUES (@ModuleTypeID, @Name)", items);
             }
         }
     }

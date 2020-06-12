@@ -1,8 +1,8 @@
 using System.Data;
-using System.Data.SQLite;
 using System.Linq;
 using System.Xml.Linq;
 using System.Xml.XPath;
+using Dapper;
 using X4_DataExporterWPF.Entity;
 
 namespace X4_DataExporterWPF.Export
@@ -32,13 +32,13 @@ namespace X4_DataExporterWPF.Export
         /// 抽出処理
         /// </summary>
         /// <param name="cmd"></param>
-        public void Export(SQLiteCommand cmd)
+        public void Export(IDbConnection connection)
         {
             //////////////////
             // テーブル作成 //
             //////////////////
             {
-                cmd.CommandText = @"
+                connection.Execute(@"
 CREATE TABLE IF NOT EXISTS EquipmentProduction
 (
     EquipmentID TEXT    NOT NULL,
@@ -46,8 +46,7 @@ CREATE TABLE IF NOT EXISTS EquipmentProduction
     Time        REAL    NOT NULL,
     PRIMARY KEY (EquipmentID, Method),
     FOREIGN KEY (EquipmentID)   REFERENCES Equipment(EquipmentID)
-) WITHOUT ROWID";
-                cmd.ExecuteNonQuery();
+) WITHOUT ROWID");
             }
 
 
@@ -75,16 +74,7 @@ CREATE TABLE IF NOT EXISTS EquipmentProduction
                     x => x != null
                 );
 
-                cmd.CommandText = "INSERT INTO EquipmentProduction (EquipmentID, Method, Time) values (@equipmentID, @method, @time)";
-                foreach (var item in items)
-                {
-                    cmd.Parameters.Clear();
-                    cmd.Parameters.AddWithValue("@equipmentID", item.EquipmentID);
-                    cmd.Parameters.AddWithValue("@method",      item.Method);
-                    cmd.Parameters.AddWithValue("@time",        item.Time);
-
-                    cmd.ExecuteNonQuery();
-                }
+                connection.Execute("INSERT INTO EquipmentProduction (EquipmentID, Method, Time) VALUES (@EquipmentID, @Method, @Time)", items);
             }
         }
     }

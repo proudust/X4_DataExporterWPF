@@ -1,4 +1,4 @@
-﻿using System.Data.SQLite;
+﻿using System.Data;
 
 namespace X4_DataExporterWPF.Export
 {
@@ -11,6 +11,6 @@ namespace X4_DataExporterWPF.Export
         /// エクスポート処理
         /// </summary>
         /// <param name="cmd"></param>
-        void Export(SQLiteCommand cmd);
+        void Export(IDbConnection connection);
     }
 }

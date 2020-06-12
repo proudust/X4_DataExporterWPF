@@ -1,8 +1,8 @@
 using System.Data;
-using System.Data.SQLite;
 using System.Linq;
 using System.Xml.Linq;
 using System.Xml.XPath;
+using Dapper;
 using LibX4.FileSystem;
 using LibX4.Lang;
 using X4_DataExporterWPF.Entity;
@@ -50,13 +50,13 @@ namespace X4_DataExporterWPF.Export
         /// 抽出処理
         /// </summary>
         /// <param name="cmd"></param>
-        public void Export(SQLiteCommand cmd)
+        public void Export(IDbConnection connection)
         {
             //////////////////
             // テーブル作成 //
             //////////////////
             {
-                cmd.CommandText = @"
+                connection.Execute(@"
 CREATE TABLE IF NOT EXISTS Equipment
 (
     EquipmentID     TEXT    NOT NULL PRIMARY KEY,
@@ -66,8 +66,7 @@ CREATE TABLE IF NOT EXISTS Equipment
     Name            TEXT    NOT NULL,
     FOREIGN KEY (EquipmentTypeID)   REFERENCES EquipmentType(EquipmentTypeID),
     FOREIGN KEY (SizeID)            REFERENCES Size(SizeID)
-) WITHOUT ROWID";
-                cmd.ExecuteNonQuery();
+) WITHOUT ROWID");
             }
 
 
@@ -85,18 +84,7 @@ CREATE TABLE IF NOT EXISTS Equipment
                 );
 
 
-                cmd.CommandText = "INSERT INTO Equipment (EquipmentID, MacroName, EquipmentTypeID, SizeID, Name) values (@equipmentID, @macroName, @equipmentTypeID, @sizeID, @name)";
-                foreach (var item in items)
-                {
-                    cmd.Parameters.Clear();
-                    cmd.Parameters.AddWithValue("@equipmentID",     item.EquipmentID);
-                    cmd.Parameters.AddWithValue("@macroName",       item.MacroName);
-                    cmd.Parameters.AddWithValue("@equipmentTypeID", item.EquipmentTypeID);
-                    cmd.Parameters.AddWithValue("@sizeID",          item.SizeID);
-                    cmd.Parameters.AddWithValue("@name",            item.Name);
-
-                    cmd.ExecuteNonQuery();
-                }
+                connection.Execute("INSERT INTO Equipment (EquipmentID, MacroName, EquipmentTypeID, SizeID, Name) VALUES (@EquipmentID, @MacroName, @EquipmentTypeID, @SizeID, @Name)", items);
             }
         }
 

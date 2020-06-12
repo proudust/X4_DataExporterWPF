@@ -1,4 +1,5 @@
-﻿using System.Data.SQLite;
+﻿using System.Data;
+using Dapper;
 using LibX4.Lang;
 using X4_DataExporterWPF.Entity;
 
@@ -29,19 +30,18 @@ namespace X4_DataExporterWPF.Export
         /// 抽出処理
         /// </summary>
         /// <param name="cmd"></param>
-        public void Export(SQLiteCommand cmd)
+        public void Export(IDbConnection connection)
         {
             //////////////////
             // テーブル作成 //
             //////////////////
             {
-                cmd.CommandText = @"
+                connection.Execute(@"
 CREATE TABLE IF NOT EXISTS TransportType
 (
     TransportTypeID TEXT    NOT NULL PRIMARY KEY,
     Name            TEXT    NOT NULL
-) WITHOUT ROWID";
-                cmd.ExecuteNonQuery();
+) WITHOUT ROWID");
             }
 
 
@@ -52,20 +52,13 @@ CREATE TABLE IF NOT EXISTS TransportType
                 // TODO: 可能ならファイルから抽出する
                 TransportType[] items =
                 {
-                    new TransportType("container", "{20205, 100}"),
-                    new TransportType("liquid",    "{20205, 300}"),
-                    new TransportType("solid",     "{20205, 200}")
+                    new TransportType("container", Resolver.Resolve("{20205, 100}")),
+                    new TransportType("liquid",    Resolver.Resolve("{20205, 300}")),
+                    new TransportType("solid",     Resolver.Resolve("{20205, 200}"))
                 };
 
                 // レコード追加
-                cmd.CommandText = "INSERT INTO TransportType (TransportTypeID, Name) VALUES(@transportTypeID, @name)";
-                foreach (var item in items)
-                {
-                    cmd.Parameters.Clear();
-                    cmd.Parameters.AddWithValue("transportTypeID", item.TransportTypeID);
-                    cmd.Parameters.AddWithValue("name", Resolver.Resolve(item.Name));
-                    cmd.ExecuteNonQuery();
-                }
+                connection.Execute("INSERT INTO TransportType (TransportTypeID, Name) VALUES (@TransportTypeID, @Name)", items);
             }
         }
     }

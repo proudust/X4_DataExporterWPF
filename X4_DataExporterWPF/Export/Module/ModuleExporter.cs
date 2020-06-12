@@ -1,8 +1,8 @@
 ﻿using System.Data;
-using System.Data.SQLite;
 using System.Linq;
 using System.Xml.Linq;
 using System.Xml.XPath;
+using Dapper;
 using LibX4.FileSystem;
 using LibX4.Lang;
 using X4_DataExporterWPF.Entity;
@@ -49,13 +49,13 @@ namespace X4_DataExporterWPF.Export
         /// 抽出処理
         /// </summary>
         /// <param name="cmd"></param>
-        public void Export(SQLiteCommand cmd)
+        public void Export(IDbConnection connection)
         {
             //////////////////
             // テーブル作成 //
             //////////////////
             {
-                cmd.CommandText = @"
+                connection.Execute(@"
 CREATE TABLE IF NOT EXISTS Module
 (
     ModuleID        TEXT    NOT NULL PRIMARY KEY,
@@ -65,8 +65,7 @@ CREATE TABLE IF NOT EXISTS Module
     MaxWorkers      INTEGER NOT NULL,
     WorkersCapacity INTEGER NOT NULL,
     FOREIGN KEY (ModuleTypeID)  REFERENCES ModuleType(ModuleTypeID)
-) WITHOUT ROWID";
-                cmd.ExecuteNonQuery();
+) WITHOUT ROWID");
             }
 
 
@@ -83,19 +82,7 @@ CREATE TABLE IF NOT EXISTS Module
                     x => x != null
                 );
 
-                cmd.CommandText = "INSERT INTO Module (ModuleID, ModuleTypeID, Name, Macro, MaxWorkers, WorkersCapacity) values (@moduleID, @moduleTypeID, @name, @macro, @maxWorkers, @workersCapacity)";
-                foreach (var item in items)
-                {
-                    cmd.Parameters.Clear();
-                    cmd.Parameters.AddWithValue("@moduleID",        item.ModuleID);
-                    cmd.Parameters.AddWithValue("@moduleTypeID",    item.ModuleTypeID);
-                    cmd.Parameters.AddWithValue("@name",            item.Name);
-                    cmd.Parameters.AddWithValue("@macro",           item.Macro);
-                    cmd.Parameters.AddWithValue("@maxWorkers",      item.MaxWorkers);
-                    cmd.Parameters.AddWithValue("@workersCapacity", item.WorkersCapacity);
-
-                    cmd.ExecuteNonQuery();
-                }
+                connection.Execute("INSERT INTO Module (ModuleID, ModuleTypeID, Name, Macro, MaxWorkers, WorkersCapacity) VALUES (@ModuleID, @ModuleTypeID, @Name, @Macro, @MaxWorkers, @WorkersCapacity)", items);
             }
         }
 

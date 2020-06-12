@@ -1,7 +1,9 @@
-﻿using System.Data.SQLite;
+﻿using System.Data;
+using Dapper;
 using System.Linq;
 using System.Xml.Linq;
 using System.Xml.XPath;
+using Dapper;
 using LibX4.FileSystem;
 using LibX4.Lang;
 using X4_DataExporterWPF.Entity;
@@ -38,20 +40,19 @@ namespace X4_DataExporterWPF.Export
         /// データ抽出
         /// </summary>
         /// <param name="cmd"></param>
-        public void Export(SQLiteCommand cmd)
+        public void Export(IDbConnection connection)
         {
             //////////////////
             // テーブル作成 //
             //////////////////
             {
-                cmd.CommandText = @"
+                connection.Execute(@"
 CREATE TABLE IF NOT EXISTS Map
 (
     Macro       TEXT    NOT NULL PRIMARY KEY,
     Name        TEXT    NOT NULL,
     Description TEXT    NOT NULL
-)";
-                cmd.ExecuteNonQuery();
+)");
             }
 
 
@@ -77,15 +78,7 @@ CREATE TABLE IF NOT EXISTS Map
                 );
 
 
-                cmd.CommandText = "INSERT INTO Map (Macro, Name, Description) VALUES(@macro, @name, @description)";
-                foreach (var item in items)
-                {
-                    cmd.Parameters.Clear();
-                    cmd.Parameters.AddWithValue("@macro", item.Macro);
-                    cmd.Parameters.AddWithValue("@name", item.Name);
-                    cmd.Parameters.AddWithValue("@description", item.Description);
-                    cmd.ExecuteNonQuery();
-                }
+                connection.Execute("INSERT INTO Map (Macro, Name, Description) VALUES (@Macro, @Name, @Description)", items);
             }
 
 
@@ -93,8 +86,7 @@ CREATE TABLE IF NOT EXISTS Map
             // Index作成 //
             ///////////////
             {
-                cmd.CommandText = "CREATE INDEX MapIndex ON Ware(Macro)";
-                cmd.ExecuteNonQuery();
+                connection.Execute("CREATE INDEX MapIndex ON Ware(Macro)");
             }
         }
     }

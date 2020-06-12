@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Data;
-using System.Data.SQLite;
 using System.Linq;
 using System.Xml.Linq;
 using System.Xml.XPath;
+using Dapper;
 using LibX4.FileSystem;
 using X4_DataExporterWPF.Entity;
 
@@ -41,13 +41,13 @@ namespace X4_DataExporterWPF.Export
         /// 抽出処理
         /// </summary>
         /// <param name="cmd"></param>
-        public void Export(SQLiteCommand cmd)
+        public void Export(IDbConnection connection)
         {
             //////////////////
             // テーブル作成 //
             //////////////////
             {
-                cmd.CommandText = @"
+                connection.Execute(@"
 CREATE TABLE IF NOT EXISTS ModuleTurret
 (
     ModuleID    TEXT    NOT NULL,
@@ -56,8 +56,7 @@ CREATE TABLE IF NOT EXISTS ModuleTurret
     PRIMARY KEY (ModuleID, SizeID),
     FOREIGN KEY (ModuleID)  REFERENCES Module(ModuleID),
     FOREIGN KEY (SizeID)    REFERENCES Size(SizeID)
-) WITHOUT ROWID";
-                cmd.ExecuteNonQuery();
+) WITHOUT ROWID");
             }
 
 
@@ -75,16 +74,7 @@ CREATE TABLE IF NOT EXISTS ModuleTurret
                 );
 
 
-                cmd.CommandText = "INSERT INTO ModuleTurret (ModuleID, SizeID, Amount) values (@moduleID, @sizeID, @amount)";
-                foreach (var item in items)
-                {
-                    cmd.Parameters.Clear();
-                    cmd.Parameters.AddWithValue("@moduleID", item.ModuleID);
-                    cmd.Parameters.AddWithValue("@sizeID",   item.SizeID);
-                    cmd.Parameters.AddWithValue("@amount",   item.Amount);
-
-                    cmd.ExecuteNonQuery();
-                }
+                connection.Execute("INSERT INTO ModuleTurret (ModuleID, SizeID, Amount) VALUES (@ModuleID, @SizeID, @Amount)", items);
             }
         }
 

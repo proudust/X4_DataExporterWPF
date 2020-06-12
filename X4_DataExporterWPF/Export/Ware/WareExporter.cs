@@ -1,8 +1,8 @@
 ﻿using System.Data;
-using System.Data.SQLite;
 using System.Linq;
 using System.Xml.Linq;
 using System.Xml.XPath;
+using Dapper;
 using LibX4.Lang;
 using X4_DataExporterWPF.Entity;
 
@@ -38,13 +38,13 @@ namespace X4_DataExporterWPF.Export
         /// データ抽出
         /// </summary>
         /// <param name="cmd"></param>
-        public void Export(SQLiteCommand cmd)
+        public void Export(IDbConnection connection)
         {
             //////////////////
             // テーブル作成 //
             //////////////////
             {
-                cmd.CommandText = @"
+                connection.Execute(@"
 CREATE TABLE IF NOT EXISTS Ware
 (
     WareID          TEXT    NOT NULL PRIMARY KEY,
@@ -59,8 +59,7 @@ CREATE TABLE IF NOT EXISTS Ware
     MaxPrice        INTEGER NOT NULL,
     FOREIGN KEY (WareGroupID)       REFERENCES WareGroup(WareGroupID),
     FOREIGN KEY (TransportTypeID)   REFERENCES TransportType(TransportTypeID)
-) WITHOUT ROWID";
-                cmd.ExecuteNonQuery();
+) WITHOUT ROWID");
             }
 
             ////////////////
@@ -98,24 +97,7 @@ CREATE TABLE IF NOT EXISTS Ware
                     x => x != null
                 );
 
-                cmd.CommandText = "INSERT INTO Ware (WareID, WareGroupID, TransportTypeID, Name, Description, FactoryName, Volume, MinPrice, AvgPrice, MaxPrice) VALUES(@wareID, @wareGroupID, @transportTypeID, @name, @description, @factoryName, @volume, @minPrice, @avgPrice, @maxPrice)";
-                foreach (var item in items)
-                {
-                    cmd.Parameters.Clear();
-
-                    cmd.Parameters.AddWithValue("@wareID",          item.WareID);
-                    cmd.Parameters.AddWithValue("@wareGroupID",     item.WareGroupID);
-                    cmd.Parameters.AddWithValue("@transportTypeID", item.TransportTypeID);
-                    cmd.Parameters.AddWithValue("@name",            item.Name);
-                    cmd.Parameters.AddWithValue("@description",     item.Description);
-                    cmd.Parameters.AddWithValue("@factoryName",     item.FactoryName);
-                    cmd.Parameters.AddWithValue("@volume",          item.Volume);
-                    cmd.Parameters.AddWithValue("@minPrice",        item.MinPrice);
-                    cmd.Parameters.AddWithValue("@avgPrice",        item.AvgPrice);
-                    cmd.Parameters.AddWithValue("@maxPrice",        item.MaxPrice);
-
-                    cmd.ExecuteNonQuery();
-                }
+                connection.Execute("INSERT INTO Ware (WareID, WareGroupID, TransportTypeID, Name, Description, FactoryName, Volume, MinPrice, AvgPrice, MaxPrice) VALUES (@WareID, @WareGroupID, @TransportTypeID, @Name, @Description, @FactoryName, @Volume, @MinPrice, @AvgPrice, @MaxPrice)", items);
             }
         }
     }

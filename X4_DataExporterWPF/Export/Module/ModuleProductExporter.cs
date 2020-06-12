@@ -1,8 +1,8 @@
 using System.Data;
-using System.Data.SQLite;
 using System.Linq;
 using System.Xml.Linq;
 using System.Xml.XPath;
+using Dapper;
 using LibX4.FileSystem;
 using X4_DataExporterWPF.Entity;
 
@@ -41,13 +41,13 @@ namespace X4_DataExporterWPF.Export
         /// 抽出処理
         /// </summary>
         /// <param name="cmd"></param>
-        public void Export(SQLiteCommand cmd)
+        public void Export(IDbConnection connection)
         {
             //////////////////
             // テーブル作成 //
             //////////////////
             {
-                cmd.CommandText = @"
+                connection.Execute(@"
 CREATE TABLE IF NOT EXISTS ModuleProduct
 (
     ModuleID    TEXT    NOT NULL,
@@ -56,8 +56,7 @@ CREATE TABLE IF NOT EXISTS ModuleProduct
     PRIMARY KEY (ModuleID, WareID, Method),
     FOREIGN KEY (ModuleID)  REFERENCES Module(ModuleID),
     FOREIGN KEY (WareID)    REFERENCES Ware(WareID)
-)WITHOUT ROWID";
-                cmd.ExecuteNonQuery();
+)WITHOUT ROWID");
             }
 
 
@@ -74,16 +73,7 @@ CREATE TABLE IF NOT EXISTS ModuleProduct
                     x => x != null
                 );
 
-                cmd.CommandText = "INSERT INTO ModuleProduct (ModuleID, WareID, Method) values (@moduleID, @wareID, @method)";
-                foreach (var item in items)
-                {
-                    cmd.Parameters.Clear();
-                    cmd.Parameters.AddWithValue("@moduleID", item.ModuleID);
-                    cmd.Parameters.AddWithValue("@wareID",   item.WareID);
-                    cmd.Parameters.AddWithValue("@method",   item.Method);
-
-                    cmd.ExecuteNonQuery();
-                }
+                connection.Execute("INSERT INTO ModuleProduct (ModuleID, WareID, Method) VALUES (@ModuleID, @WareID, @Method)", items);
             }
         }
 

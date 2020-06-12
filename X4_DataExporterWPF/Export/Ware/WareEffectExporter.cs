@@ -1,8 +1,8 @@
 ﻿using System.Data;
-using System.Data.SQLite;
 using System.Linq;
 using System.Xml.Linq;
 using System.Xml.XPath;
+using Dapper;
 using X4_DataExporterWPF.Entity;
 
 namespace X4_DataExporterWPF.Export
@@ -32,13 +32,13 @@ namespace X4_DataExporterWPF.Export
         /// 抽出処理
         /// </summary>
         /// <param name="cmd"></param>
-        public void Export(SQLiteCommand cmd)
+        public void Export(IDbConnection connection)
         {
             //////////////////
             // テーブル作成 //
             //////////////////
             {
-                cmd.CommandText = @"
+                connection.Execute(@"
 CREATE TABLE IF NOT EXISTS WareEffect
 (
     WareID      TEXT    NOT NULL,
@@ -48,8 +48,7 @@ CREATE TABLE IF NOT EXISTS WareEffect
     PRIMARY KEY (WareID, Method, EffectID),
     FOREIGN KEY (WareID)    REFERENCES Ware(WareID),
     FOREIGN KEY (EffectID)  REFERENCES Effect(EffectID)
-) WITHOUT ROWID";
-                cmd.ExecuteNonQuery();
+) WITHOUT ROWID");
             }
 
 
@@ -86,17 +85,7 @@ CREATE TABLE IF NOT EXISTS WareEffect
                     x => x != null
                 );
 
-                cmd.CommandText = "INSERT INTO WareEffect (WareID, Method, EffectID, Product) values (@wareID, @method, @effectID, @product)";
-                foreach (var item in items)
-                {
-                    cmd.Parameters.Clear();
-                    cmd.Parameters.AddWithValue("@wareID",      item.WareID);
-                    cmd.Parameters.AddWithValue("@method",      item.Method);
-                    cmd.Parameters.AddWithValue("@effectID",    item.EffectID);
-                    cmd.Parameters.AddWithValue("@product",     item.Product);
-
-                    cmd.ExecuteNonQuery();
-                }
+                connection.Execute("INSERT INTO WareEffect (WareID, Method, EffectID, Product) VALUES (@WareID, @Method, @EffectID, @Product)", items);
             }
         }
     }

@@ -1,8 +1,8 @@
 ﻿using System.Data;
-using System.Data.SQLite;
 using System.Linq;
 using System.Xml.Linq;
 using System.Xml.XPath;
+using Dapper;
 using X4_DataExporterWPF.Entity;
 
 namespace X4_DataExporterWPF.Export
@@ -33,13 +33,13 @@ namespace X4_DataExporterWPF.Export
         /// 抽出処理
         /// </summary>
         /// <param name="cmd"></param>
-        public void Export(SQLiteCommand cmd)
+        public void Export(IDbConnection connection)
         {
             //////////////////
             // テーブル作成 //
             //////////////////
             {
-                cmd.CommandText = @"
+                connection.Execute(@"
 CREATE TABLE IF NOT EXISTS WareResource
 (
     WareID      TEXT    NOT NULL,
@@ -49,8 +49,7 @@ CREATE TABLE IF NOT EXISTS WareResource
     PRIMARY KEY (WareID, Method, NeedWareID),
     FOREIGN KEY (WareID)        REFERENCES Ware(WareID),
     FOREIGN KEY (NeedWareID)    REFERENCES Ware(WareID)
-) WITHOUT ROWID";
-                cmd.ExecuteNonQuery();
+) WITHOUT ROWID");
             }
 
 
@@ -86,17 +85,7 @@ CREATE TABLE IF NOT EXISTS WareResource
                     x => x != null
                 );
 
-                cmd.CommandText = "INSERT INTO WareResource (WareID, Method, NeedWareID, Amount) values (@wareID, @method, @needWareID, @amount)";
-                foreach (var item in items)
-                {
-                    cmd.Parameters.Clear();
-                    cmd.Parameters.AddWithValue("@wareID",      item.WareID);
-                    cmd.Parameters.AddWithValue("@method",      item.Method);
-                    cmd.Parameters.AddWithValue("@needWareID",  item.NeedWareID);
-                    cmd.Parameters.AddWithValue("@amount",      item.Amount);
-
-                    cmd.ExecuteNonQuery();
-                }
+                connection.Execute("INSERT INTO WareResource (WareID, Method, NeedWareID, Amount) VALUES (@WareID, @Method, @NeedWareID, @Amount)", items);
             }
         }
     }
