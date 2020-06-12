@@ -1,5 +1,6 @@
 ﻿using System.Data.SQLite;
 using LibX4.Lang;
+using X4_DataExporterWPF.Entity;
 
 namespace X4_DataExporterWPF.Export
 {
@@ -49,25 +50,25 @@ CREATE TABLE IF NOT EXISTS EquipmentType
             ////////////////
             {
                 // TODO: 可能ならファイルから抽出する
-                (string, string)[] items =
+                EquipmentType[] items =
                 {
-                    ("countermeasures", "{20215, 1701}"),
-                    ("drones",          "{20215, 1601}"),
-                    ("engines",         "{20215, 1801}"),
-                    ("missiles",        "{20215, 1901}"),
-                    ("shields",         "{20215, 2001}"),
-                    ("software",        "{20215, 2101}"),
-                    ("thrusters",       "{20215, 2201}"),
-                    ("turrets",         "{20215, 2301}"),
-                    ("weapons",         "{20215, 2401}")
+                    new EquipmentType("countermeasures", "{20215, 1701}"),
+                    new EquipmentType("drones",          "{20215, 1601}"),
+                    new EquipmentType("engines",         "{20215, 1801}"),
+                    new EquipmentType("missiles",        "{20215, 1901}"),
+                    new EquipmentType("shields",         "{20215, 2001}"),
+                    new EquipmentType("software",        "{20215, 2101}"),
+                    new EquipmentType("thrusters",       "{20215, 2201}"),
+                    new EquipmentType("turrets",         "{20215, 2301}"),
+                    new EquipmentType("weapons",         "{20215, 2401}")
                 };
 
                 cmd.CommandText = "INSERT INTO EquipmentType (EquipmentTypeID, Name) values (@equipmentTypeID, @name)";
                 foreach (var item in items)
                 {
                     cmd.Parameters.Clear();
-                    cmd.Parameters.AddWithValue("@equipmentTypeID", item.Item1);
-                    cmd.Parameters.AddWithValue("@name",            _Resolver.Resolve(item.Item2));
+                    cmd.Parameters.AddWithValue("@equipmentTypeID", item.EquipmentTypeID);
+                    cmd.Parameters.AddWithValue("@name",            _Resolver.Resolve(item.Name));
 
                     cmd.ExecuteNonQuery();
                 }

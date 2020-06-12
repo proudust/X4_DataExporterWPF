@@ -5,6 +5,7 @@ using System.Xml.Linq;
 using System.Xml.XPath;
 using LibX4.FileSystem;
 using LibX4.Lang;
+using X4_DataExporterWPF.Entity;
 
 namespace X4_DataExporterWPF.Export
 {
@@ -80,10 +81,7 @@ CREATE TABLE IF NOT EXISTS Equipment
                 )
                 .Where
                 (
-                    x => !string.IsNullOrEmpty(x.Item1) &&
-                         !string.IsNullOrEmpty(x.Item2) &&
-                         !string.IsNullOrEmpty(x.Item3) &&
-                         !string.IsNullOrEmpty(x.Item4)
+                    x => x != null
                 );
 
 
@@ -91,11 +89,11 @@ CREATE TABLE IF NOT EXISTS Equipment
                 foreach (var item in items)
                 {
                     cmd.Parameters.Clear();
-                    cmd.Parameters.AddWithValue("@equipmentID",     item.Item1);
-                    cmd.Parameters.AddWithValue("@macroName",       item.Item2);
-                    cmd.Parameters.AddWithValue("@equipmentTypeID", item.Item3);
-                    cmd.Parameters.AddWithValue("@sizeID",          item.Item4);
-                    cmd.Parameters.AddWithValue("@name",            item.Item5);
+                    cmd.Parameters.AddWithValue("@equipmentID",     item.EquipmentID);
+                    cmd.Parameters.AddWithValue("@macroName",       item.MacroName);
+                    cmd.Parameters.AddWithValue("@equipmentTypeID", item.EquipmentTypeID);
+                    cmd.Parameters.AddWithValue("@sizeID",          item.SizeID);
+                    cmd.Parameters.AddWithValue("@name",            item.Name);
 
                     cmd.ExecuteNonQuery();
                 }
@@ -108,11 +106,19 @@ CREATE TABLE IF NOT EXISTS Equipment
         /// </summary>
         /// <param name="equipment"></param>
         /// <returns></returns>
-        private (string, string, string, string, string) GetRecord(XElement equipment)
+        private Equipment? GetRecord(XElement equipment)
         {
             try
             {
+                var equipmentID = equipment.Attribute("id")?.Value;
+                if (string.IsNullOrEmpty(equipmentID)) return null;
+
                 var macroName = equipment.XPathSelectElement("component").Attribute("ref")?.Value;
+                if (string.IsNullOrEmpty(macroName)) return null;
+
+                var equipmentTypeID = equipment.Attribute("group")?.Value;
+                if (string.IsNullOrEmpty(equipmentTypeID)) return null;
+
                 var macroXml = _CatFile.OpenIndexXml("index/macros.xml", macroName);
                 var componentXml = _CatFile.OpenIndexXml("index/components.xml", macroXml.Root.XPathSelectElement("macro/component").Attribute("ref").Value);
 
@@ -124,26 +130,18 @@ CREATE TABLE IF NOT EXISTS Equipment
 
                 // 一致するサイズを探す
                 var tags = component?.Attribute("tags").Value.Split(" ");
-                var size = sizes.Where(x => tags?.Contains(x) == true).FirstOrDefault();
-                if (string.IsNullOrEmpty(size))
-                {
-                    // 一致するサイズがなかった場合
-                    return ("", "", "", "", "");
-                }
+                var sizeID = sizes.Where(x => tags?.Contains(x) == true).FirstOrDefault();
+                // 一致するサイズがなかった場合
+                if (string.IsNullOrEmpty(sizeID)) return null;
 
                 var name = _Resolver.Resolve(equipment.Attribute("name").Value);
+                name = string.IsNullOrEmpty(name) ? macroName : name;
 
-                return (
-                    equipment.Attribute("id").Value,
-                    macroName,
-                    equipment.Attribute("group").Value,
-                    size,
-                    string.IsNullOrEmpty(name) ? macroName : name
-                );
+                return new Equipment(equipmentID, macroName, equipmentTypeID, sizeID, name);
             }
             catch
             {
-                return ("", "", "", "", "");
+                return null;
             }
         }
     }

@@ -3,6 +3,7 @@ using System.Data.SQLite;
 using System.Linq;
 using System.Xml.Linq;
 using System.Xml.XPath;
+using X4_DataExporterWPF.Entity;
 
 namespace X4_DataExporterWPF.Export
 {
@@ -59,16 +60,18 @@ CREATE TABLE IF NOT EXISTS ModuleOwner
                     module => module.XPathSelectElements("owner").Select
                     (
                         owner =>
-                        (
-                            module.Attribute("id")?.Value,
-                            owner.Attribute("faction")?.Value
-                        )
+                        {
+                            var moduleID = module.Attribute("id")?.Value;
+                            if (string.IsNullOrEmpty(moduleID)) return null;
+                            var factionID = owner.Attribute("faction")?.Value;
+                            if (string.IsNullOrEmpty(factionID)) return null;
+                            return new ModuleOwner(moduleID, factionID);
+                        }
                     )
                 )
                 .Where
                 (
-                    x => !string.IsNullOrEmpty(x.Item1) &&
-                         !string.IsNullOrEmpty(x.Item2)
+                    x => x != null
                 );
 
 
@@ -76,8 +79,8 @@ CREATE TABLE IF NOT EXISTS ModuleOwner
                 foreach (var item in items)
                 {
                     cmd.Parameters.Clear();
-                    cmd.Parameters.AddWithValue("moduleID", item.Item1);
-                    cmd.Parameters.AddWithValue("factionID", item.Item2);
+                    cmd.Parameters.AddWithValue("moduleID", item.ModuleID);
+                    cmd.Parameters.AddWithValue("factionID", item.FactionID);
                     cmd.ExecuteNonQuery();
                 }
             }

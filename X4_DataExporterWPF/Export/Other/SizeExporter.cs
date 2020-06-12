@@ -1,5 +1,6 @@
 ﻿using System.Data.SQLite;
 using LibX4.Lang;
+using X4_DataExporterWPF.Entity;
 
 namespace X4_DataExporterWPF.Export
 {
@@ -49,20 +50,20 @@ CREATE TABLE IF NOT EXISTS Size
             ////////////////
             {
                 // TODO:可能ならファイルから抽出する
-                (string, string)[] items =
+                Size[] items =
                 {
-                    ("extrasmall",  "{1001, 52}"),
-                    ("small",       "{1001, 51}"),
-                    ("medium",      "{1001, 50}"),
-                    ("large",       "{1001, 49}"),
-                    ("extralarge",  "{1001, 48}")
+                    new Size("extrasmall",  "{1001, 52}"),
+                    new Size("small",       "{1001, 51}"),
+                    new Size("medium",      "{1001, 50}"),
+                    new Size("large",       "{1001, 49}"),
+                    new Size("extralarge",  "{1001, 48}"),
                 };
 
                 cmd.CommandText = "INSERT INTO Size (SizeID, Name) values (@sizeID, @name)";
                 foreach (var item in items)
                 {
-                    cmd.Parameters.AddWithValue("sizeID", item.Item1);
-                    cmd.Parameters.AddWithValue("name", Resolver.Resolve(item.Item2));
+                    cmd.Parameters.AddWithValue("sizeID", item.SizeID);
+                    cmd.Parameters.AddWithValue("name", Resolver.Resolve(item.Name));
 
                     cmd.ExecuteNonQuery();
                 }

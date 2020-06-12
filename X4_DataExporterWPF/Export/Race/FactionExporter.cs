@@ -5,6 +5,7 @@ using System.Xml.Linq;
 using System.Xml.XPath;
 using LibX4.FileSystem;
 using LibX4.Lang;
+using X4_DataExporterWPF.Entity;
 
 namespace X4_DataExporterWPF.Export
 {
@@ -68,27 +69,32 @@ CREATE TABLE IF NOT EXISTS Faction
                 var items = _FactionsXml.Root.XPathSelectElements("faction[@name]").Select
                 (
                     x =>
-                    (
-                        x.Attribute("id")?.Value,
-                        _Resolver.Resolve(x.Attribute("name")?.Value ?? ""),
-                        x.Attribute("primaryrace")?.Value ?? "",
-                        _Resolver.Resolve(x.Attribute("shortname")?.Value ?? "")
-                    )
+                    {
+                        var factionID = x.Attribute("id")?.Value;
+                        if (string.IsNullOrEmpty(factionID)) return null;
+
+                        var name = _Resolver.Resolve(x.Attribute("name")?.Value ?? "");
+                        if (string.IsNullOrEmpty(name)) return null;
+
+                        var raceID = x.Attribute("primaryrace")?.Value ?? "";
+                        var shortName = _Resolver.Resolve(x.Attribute("shortname")?.Value ?? "");
+
+                        return new Faction(factionID, name, raceID, shortName);
+                    }
                 )
                 .Where
                 (
-                    x => !string.IsNullOrEmpty(x.Item1) &&
-                         !string.IsNullOrEmpty(x.Item2)
+                    x => x != null
                 );
 
                 cmd.CommandText = "INSERT INTO Faction (FactionID, Name, RaceID, ShortName) values (@factionID, @name, @raceID, @shortName)";
                 foreach (var item in items)
                 {
                     cmd.Parameters.Clear();
-                    cmd.Parameters.AddWithValue("@factionID",   item.Item1);
-                    cmd.Parameters.AddWithValue("@name",        item.Item2);
-                    cmd.Parameters.AddWithValue("@raceID",      item.Item3);
-                    cmd.Parameters.AddWithValue("@shortName",   item.Item4);
+                    cmd.Parameters.AddWithValue("@factionID",   item.FactionID);
+                    cmd.Parameters.AddWithValue("@name",        item.Name);
+                    cmd.Parameters.AddWithValue("@raceID",      item.RaceID);
+                    cmd.Parameters.AddWithValue("@shortName",   item.ShortName);
 
                     cmd.ExecuteNonQuery();
                 }

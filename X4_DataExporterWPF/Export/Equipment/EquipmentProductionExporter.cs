@@ -1,8 +1,9 @@
-﻿using System.Data;
+using System.Data;
 using System.Data.SQLite;
 using System.Linq;
 using System.Xml.Linq;
 using System.Xml.XPath;
+using X4_DataExporterWPF.Entity;
 
 namespace X4_DataExporterWPF.Export
 {
@@ -59,26 +60,28 @@ CREATE TABLE IF NOT EXISTS EquipmentProduction
                     equipment => equipment.XPathSelectElements("production").Select
                     (
                         prod =>
-                        (
-                            equipment.Attribute("id")?.Value,
-                            prod.Attribute("method")?.Value,
-                            double.Parse(prod.Attribute("time")?.Value ?? "0.0")
-                        )
+                        {
+                            var equipmentID = equipment.Attribute("id")?.Value;
+                            if (string.IsNullOrEmpty(equipmentID)) return null;
+                            var method = prod.Attribute("method")?.Value;
+                            if (string.IsNullOrEmpty(method)) return null;
+                            var time = double.Parse(prod.Attribute("time")?.Value ?? "0.0");
+                            return new EquipmentProduction(equipmentID, method, time);
+                        }
                     )
                 )
                 .Where
                 (
-                    x => !string.IsNullOrEmpty(x.Item1) &&
-                         !string.IsNullOrEmpty(x.Item2)
+                    x => x != null
                 );
 
                 cmd.CommandText = "INSERT INTO EquipmentProduction (EquipmentID, Method, Time) values (@equipmentID, @method, @time)";
                 foreach (var item in items)
                 {
                     cmd.Parameters.Clear();
-                    cmd.Parameters.AddWithValue("@equipmentID", item.Item1);
-                    cmd.Parameters.AddWithValue("@method",      item.Item2);
-                    cmd.Parameters.AddWithValue("@time",        item.Item3);
+                    cmd.Parameters.AddWithValue("@equipmentID", item.EquipmentID);
+                    cmd.Parameters.AddWithValue("@method",      item.Method);
+                    cmd.Parameters.AddWithValue("@time",        item.Time);
 
                     cmd.ExecuteNonQuery();
                 }

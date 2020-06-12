@@ -3,7 +3,7 @@ using System.Data.SQLite;
 using System.Linq;
 using System.Xml.Linq;
 using System.Xml.XPath;
-
+using X4_DataExporterWPF.Entity;
 
 namespace X4_DataExporterWPF.Export
 {
@@ -61,17 +61,20 @@ CREATE TABLE IF NOT EXISTS ModuleProduction
                     module => module.XPathSelectElements("production").Select
                     (
                         prod =>
-                        (
-                            module.Attribute("id")?.Value,
-                            prod.Attribute("method")?.Value,
-                            double.Parse(prod.Attribute("time")?.Value ?? "0.0")
-                        )
-                    )
+                        {
+                            var moduleID = module.Attribute("id")?.Value;
+                            if (string.IsNullOrEmpty(moduleID)) return null;
+
+                            var method = prod.Attribute("method")?.Value;
+                            if (string.IsNullOrEmpty(method)) return null;
+
+                            double time = double.Parse(prod.Attribute("time")?.Value ?? "0.0");
+                            return new ModuleProduction(moduleID, method, time);
+                        })
                 )
                 .Where
                 (
-                    x => !string.IsNullOrEmpty(x.Item1) &&
-                         !string.IsNullOrEmpty(x.Item2)
+                    x => x != null
                 );
 
 
@@ -79,9 +82,9 @@ CREATE TABLE IF NOT EXISTS ModuleProduction
                 foreach (var item in items)
                 {
                     cmd.Parameters.Clear();
-                    cmd.Parameters.AddWithValue("@moduleID", item.Item1);
-                    cmd.Parameters.AddWithValue("@method",   item.Item2);
-                    cmd.Parameters.AddWithValue("@time",     item.Item3);
+                    cmd.Parameters.AddWithValue("@moduleID", item.ModuleID);
+                    cmd.Parameters.AddWithValue("@method",   item.Method);
+                    cmd.Parameters.AddWithValue("@time",     item.Time);
 
                     cmd.ExecuteNonQuery();
                 }

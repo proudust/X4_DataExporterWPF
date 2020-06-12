@@ -4,6 +4,7 @@ using System.Linq;
 using System.Xml.Linq;
 using LibX4.FileSystem;
 using LibX4.Lang;
+using X4_DataExporterWPF.Entity;
 
 namespace X4_DataExporterWPF.Export
 {
@@ -65,25 +66,30 @@ CREATE TABLE IF NOT EXISTS Race
                 var items = _RaceXml.Root.Elements().Select
                 (
                     x =>
-                    (
-                        x.Attribute("id")?.Value ?? "",
-                        _Resolver.Resolve(x.Attribute("name")?.Value ?? ""),
-                        _Resolver.Resolve(x.Attribute("shortname")?.Value ?? "")
-                    )
+                    {
+                        var raceID = x.Attribute("id")?.Value;
+                        if (string.IsNullOrEmpty(raceID)) return null;
+
+                        var name = _Resolver.Resolve(x.Attribute("name")?.Value ?? "");
+                        if (string.IsNullOrEmpty(name)) return null;
+
+                        var shortName = _Resolver.Resolve(x.Attribute("shortname")?.Value ?? "");
+
+                        return new Race(raceID, name, shortName);
+                    }
                 )
                 .Where
                 (
-                    x => !string.IsNullOrEmpty(x.Item1) &&
-                         !string.IsNullOrEmpty(x.Item2)
+                    x => x != null
                 );
 
                 cmd.CommandText = "INSERT INTO Race (RaceID, Name, ShortName) VALUES(@racdID, @name, @shortName)";
                 foreach (var item in items)
                 {
                     cmd.Parameters.Clear();
-                    cmd.Parameters.AddWithValue("@racdID",      item.Item1);
-                    cmd.Parameters.AddWithValue("@name",        item.Item2);
-                    cmd.Parameters.AddWithValue("@shortName",   item.Item3);
+                    cmd.Parameters.AddWithValue("@racdID",      item.RaceID);
+                    cmd.Parameters.AddWithValue("@name",        item.Name);
+                    cmd.Parameters.AddWithValue("@shortName",   item.ShortName);
                     cmd.ExecuteNonQuery();
                 }
             }

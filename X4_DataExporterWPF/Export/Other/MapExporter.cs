@@ -4,6 +4,7 @@ using System.Xml.Linq;
 using System.Xml.XPath;
 using LibX4.FileSystem;
 using LibX4.Lang;
+using X4_DataExporterWPF.Entity;
 
 namespace X4_DataExporterWPF.Export
 {
@@ -67,7 +68,7 @@ CREATE TABLE IF NOT EXISTS Map
 
                         var id = dataset.XPathSelectElement("properties/identification");
 
-                        return (
+                        return new Map(
                             macro,
                             _Resolver.Resolve(id.Attribute("name").Value),
                             _Resolver.Resolve(id.Attribute("description").Value)
@@ -80,9 +81,9 @@ CREATE TABLE IF NOT EXISTS Map
                 foreach (var item in items)
                 {
                     cmd.Parameters.Clear();
-                    cmd.Parameters.AddWithValue("@macro", item.Item1);
-                    cmd.Parameters.AddWithValue("@name", item.Item2);
-                    cmd.Parameters.AddWithValue("@description", item.Item3);
+                    cmd.Parameters.AddWithValue("@macro", item.Macro);
+                    cmd.Parameters.AddWithValue("@name", item.Name);
+                    cmd.Parameters.AddWithValue("@description", item.Description);
                     cmd.ExecuteNonQuery();
                 }
             }

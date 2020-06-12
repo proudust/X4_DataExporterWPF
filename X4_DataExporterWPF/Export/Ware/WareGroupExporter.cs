@@ -5,6 +5,7 @@ using System.Xml.Linq;
 using System.Xml.XPath;
 using LibX4.FileSystem;
 using LibX4.Lang;
+using X4_DataExporterWPF.Entity;
 
 namespace X4_DataExporterWPF.Export
 {
@@ -67,29 +68,34 @@ CREATE TABLE IF NOT EXISTS WareGroup
                 var items = _WareGroupXml.Root.XPathSelectElements("group[@tags='tradable']").Select
                 (
                     x =>
-                    (
-                        x.Attribute("id")?.Value,
-                        _Resolver.Resolve(x.Attribute("name")?.Value ?? ""),
-                        _Resolver.Resolve(x.Attribute("factoryname")?.Value ?? ""),
-                        x.Attribute("icon")?.Value ?? "",
-                        int.Parse(x.Attribute("tier")?.Value ?? "0")
-                    )
+                    {
+                        var wareGroupID = x.Attribute("id")?.Value;
+                        if (string.IsNullOrEmpty(wareGroupID)) return null;
+
+                        var name = _Resolver.Resolve(x.Attribute("name")?.Value ?? "");
+                        if (string.IsNullOrEmpty(name)) return null;
+
+                        var factoryName = _Resolver.Resolve(x.Attribute("factoryname")?.Value ?? "");
+                        var icon = x.Attribute("icon")?.Value ?? "";
+                        var tier = int.Parse(x.Attribute("tier")?.Value ?? "0");
+
+                        return new WareGroup(wareGroupID, name, factoryName, icon, tier);
+                    }
                 )
                 .Where
                 (
-                    x => !string.IsNullOrEmpty(x.Item1) &&
-                         !string.IsNullOrEmpty(x.Item2)
+                    x => x != null
                 );
 
                 cmd.CommandText = "INSERT INTO WareGroup (WareGroupID, Name, FactoryName, Icon, Tier) values (@wareGroupID, @name, @factoryName, @icon, @tier)";
                 foreach (var item in items)
                 {
                     cmd.Parameters.Clear();
-                    cmd.Parameters.AddWithValue("@wareGroupID", item.Item1);
-                    cmd.Parameters.AddWithValue("@name",        item.Item2);
-                    cmd.Parameters.AddWithValue("@factoryName", item.Item3);
-                    cmd.Parameters.AddWithValue("@icon",        item.Item4);
-                    cmd.Parameters.AddWithValue("@tier",        item.Item5);
+                    cmd.Parameters.AddWithValue("@wareGroupID", item.WareGroupID);
+                    cmd.Parameters.AddWithValue("@name",        item.Name);
+                    cmd.Parameters.AddWithValue("@factoryName", item.FactoryName);
+                    cmd.Parameters.AddWithValue("@icon",        item.Icon);
+                    cmd.Parameters.AddWithValue("@tier",        item.Tier);
 
                     cmd.ExecuteNonQuery();
                 }

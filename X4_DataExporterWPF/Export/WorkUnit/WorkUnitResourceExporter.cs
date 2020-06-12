@@ -3,6 +3,7 @@ using System.Data.SQLite;
 using System.Linq;
 using System.Xml.Linq;
 using System.Xml.XPath;
+using X4_DataExporterWPF.Entity;
 
 namespace X4_DataExporterWPF.Export
 {
@@ -62,30 +63,36 @@ CREATE TABLE IF NOT EXISTS WorkUnitResource
                         prod => prod.XPathSelectElements("primary/ware").Select
                         (
                             ware =>
-                            (
-                                workUnit.Attribute("id")?.Value,
-                                prod.Attribute("method")?.Value,
-                                ware.Attribute("ware")?.Value,
-                                int.Parse(ware.Attribute("amount")?.Value ?? "0")
-                            )
+                            {
+                                var workUnitID = workUnit.Attribute("id")?.Value;
+                                if (string.IsNullOrEmpty(workUnitID)) return null;
+
+                                var method = prod.Attribute("method")?.Value;
+                                if (string.IsNullOrEmpty(method)) return null;
+
+                                var wareID = ware.Attribute("ware")?.Value;
+                                if (string.IsNullOrEmpty(wareID)) return null;
+
+                                var amount = int.Parse(ware.Attribute("amount")?.Value ?? "0");
+
+                                return new WorkUnitResource(workUnitID, method, wareID, amount);
+                            }
                         )
                     )
                 )
                 .Where
                 (
-                    x => !string.IsNullOrEmpty(x.Item1) &&
-                         !string.IsNullOrEmpty(x.Item2) &&
-                         !string.IsNullOrEmpty(x.Item3)
+                    x => x != null
                 );
 
                 cmd.CommandText = "INSERT INTO WorkUnitResource (WorkUnitID, Method, WareID, Amount) values (@workUnitID, @method, @wareID, @amount)";
                 foreach (var item in items)
                 {
                     cmd.Parameters.Clear();
-                    cmd.Parameters.AddWithValue("@workUnitID",  item.Item1);
-                    cmd.Parameters.AddWithValue("@method",      item.Item2);
-                    cmd.Parameters.AddWithValue("@wareID",      item.Item3);
-                    cmd.Parameters.AddWithValue("@amount",      item.Item4);
+                    cmd.Parameters.AddWithValue("@workUnitID",  item.WorkUnitID);
+                    cmd.Parameters.AddWithValue("@method",      item.Method);
+                    cmd.Parameters.AddWithValue("@wareID",      item.WareID);
+                    cmd.Parameters.AddWithValue("@amount",      item.Amount);
 
                     cmd.ExecuteNonQuery();
                 }

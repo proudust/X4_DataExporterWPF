@@ -1,4 +1,5 @@
-﻿using System.Data.SQLite;
+using System.Data.SQLite;
+using X4_DataExporterWPF.Entity;
 
 namespace X4_DataExporterWPF.Export
 {
@@ -29,15 +30,15 @@ CREATE TABLE IF NOT EXISTS Effect
             ////////////////
             {
                 // TODO: 可能ならファイルから抽出する
-                (string, string)[] items = { ("work", "work") };
+                Effect[] items = { new Effect("work", "work") };
 
                 // レコード追加
                 cmd.CommandText = "INSERT INTO Effect (EffectID, Name) VALUES(@effectID, @name)";
                 foreach (var item in items)
                 {
                     cmd.Parameters.Clear();
-                    cmd.Parameters.AddWithValue("effectID", item.Item1);
-                    cmd.Parameters.AddWithValue("name", item.Item2);
+                    cmd.Parameters.AddWithValue("effectID", item.EffectID);
+                    cmd.Parameters.AddWithValue("name", item.Name);
                     cmd.ExecuteNonQuery();
                 }
             }

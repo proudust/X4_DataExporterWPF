@@ -5,6 +5,7 @@ using System.Xml.Linq;
 using System.Xml.XPath;
 using LibX4.FileSystem;
 using LibX4.Lang;
+using X4_DataExporterWPF.Entity;
 
 namespace X4_DataExporterWPF.Export
 {
@@ -79,22 +80,19 @@ CREATE TABLE IF NOT EXISTS Module
                 )
                 .Where
                 (
-                    x => !string.IsNullOrEmpty(x.Item1) &&
-                         !string.IsNullOrEmpty(x.Item2) &&
-                         !string.IsNullOrEmpty(x.Item3) &&
-                         !string.IsNullOrEmpty(x.Item4)
+                    x => x != null
                 );
 
                 cmd.CommandText = "INSERT INTO Module (ModuleID, ModuleTypeID, Name, Macro, MaxWorkers, WorkersCapacity) values (@moduleID, @moduleTypeID, @name, @macro, @maxWorkers, @workersCapacity)";
                 foreach (var item in items)
                 {
                     cmd.Parameters.Clear();
-                    cmd.Parameters.AddWithValue("@moduleID",        item.Item1);
-                    cmd.Parameters.AddWithValue("@moduleTypeID",    item.Item2);
-                    cmd.Parameters.AddWithValue("@name",            item.Item3);
-                    cmd.Parameters.AddWithValue("@macro",           item.Item4);
-                    cmd.Parameters.AddWithValue("@maxWorkers",      item.Item5);
-                    cmd.Parameters.AddWithValue("@workersCapacity", item.Item6);
+                    cmd.Parameters.AddWithValue("@moduleID",        item.ModuleID);
+                    cmd.Parameters.AddWithValue("@moduleTypeID",    item.ModuleTypeID);
+                    cmd.Parameters.AddWithValue("@name",            item.Name);
+                    cmd.Parameters.AddWithValue("@macro",           item.Macro);
+                    cmd.Parameters.AddWithValue("@maxWorkers",      item.MaxWorkers);
+                    cmd.Parameters.AddWithValue("@workersCapacity", item.WorkersCapacity);
 
                     cmd.ExecuteNonQuery();
                 }
@@ -107,13 +105,19 @@ CREATE TABLE IF NOT EXISTS Module
         /// </summary>
         /// <param name="module"></param>
         /// <returns></returns>
-        private (string, string, string, string, int, int) GetRecord(XElement module)
+        private Module? GetRecord(XElement module)
         {
             try
             {
-                var macroName = module.XPathSelectElement("component").Attribute("ref").Value;
-                var macroXml = _CatFile.OpenIndexXml("index/macros.xml", macroName);
+                var moduleID = module.Attribute("id").Value;
+                if (string.IsNullOrEmpty(moduleID)) return null;
 
+                var macroName = module.XPathSelectElement("component").Attribute("ref").Value;
+                if (string.IsNullOrEmpty(macroName)) return null;
+
+                var macroXml = _CatFile.OpenIndexXml("index/macros.xml", macroName);
+                var moduleTypeID = macroXml.Root.XPathSelectElement("macro").Attribute("class").Value;
+                if (string.IsNullOrEmpty(moduleTypeID)) return null;
 
                 // 従業員数/最大収容人数取得
                 var workForce = macroXml?.Root?.XPathSelectElement("macro/properties/workforce");
@@ -121,19 +125,13 @@ CREATE TABLE IF NOT EXISTS Module
                 var capacity = int.Parse(workForce?.Attribute("capacity")?.Value ?? "0");
 
                 var name = _Resolver.Resolve(module.Attribute("name")?.Value ?? "");
+                name = string.IsNullOrEmpty(name) ? macroName : name;
 
-                return (
-                    module.Attribute("id").Value,
-                    macroXml.Root.XPathSelectElement("macro").Attribute("class").Value,
-                    string.IsNullOrEmpty(name) ? macroName : name,
-                    macroName,
-                    maxWorkers,
-                    capacity
-                );
+                return new Module(moduleID, moduleTypeID, name, macroName, maxWorkers, capacity);
             }
             catch
             {
-                return ("", "", "", "", 0, 0);
+                return null;
             }
         }
     }

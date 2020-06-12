@@ -4,6 +4,7 @@ using System.Linq;
 using System.Xml.Linq;
 using System.Xml.XPath;
 using LibX4.FileSystem;
+using X4_DataExporterWPF.Entity;
 
 namespace X4_DataExporterWPF.Export
 {
@@ -69,17 +70,16 @@ CREATE TABLE IF NOT EXISTS ModuleStorage
                 )
                 .Where
                 (
-                    x => !string.IsNullOrEmpty(x.Item1) &&
-                         !string.IsNullOrEmpty(x.Item2)
+                    x => x != null
                 );
 
                 cmd.CommandText = "INSERT INTO ModuleStorage (ModuleID, TransportTypeID, Amount) values (@moduleID, @transportTypeID, @amount)";
                 foreach (var item in items)
                 {
                     cmd.Parameters.Clear();
-                    cmd.Parameters.AddWithValue("@moduleID",        item.Item1);
-                    cmd.Parameters.AddWithValue("@transportTypeID", item.Item2);
-                    cmd.Parameters.AddWithValue("@amount",          item.Item3);
+                    cmd.Parameters.AddWithValue("@moduleID",        item.ModuleID);
+                    cmd.Parameters.AddWithValue("@transportTypeID", item.TransportTypeID);
+                    cmd.Parameters.AddWithValue("@amount",          item.Amount);
 
                     cmd.ExecuteNonQuery();
                 }
@@ -92,10 +92,13 @@ CREATE TABLE IF NOT EXISTS ModuleStorage
         /// </summary>
         /// <param name="module"></param>
         /// <returns></returns>
-        private (string, string, int) GetRecord(XElement module)
+        private ModuleStorage? GetRecord(XElement module)
         {
             try
             {
+                var moduleID = module.Attribute("id")?.Value;
+                if (string.IsNullOrEmpty(moduleID)) return null;
+
                 var macroName = module.XPathSelectElement("component").Attribute("ref").Value;
                 var macroXml = _CatFile.OpenIndexXml("index/macros.xml", macroName);
 
@@ -103,21 +106,17 @@ CREATE TABLE IF NOT EXISTS ModuleStorage
                 var cargo = macroXml.Root.XPathSelectElement("macro/properties/cargo");
 
                 // 総合保管庫は飛ばす
-                var tags = cargo?.Attribute("tags")?.Value;
-                if (tags?.Contains(' ') == true)
-                {
-                    return ("", "", 0);
-                }
+                var transportTypeID = cargo?.Attribute("tags")?.Value;
+                if (string.IsNullOrEmpty(transportTypeID)) return null;
+                if (transportTypeID.Contains(' ') == true) return null;
 
-                return (
-                    module.Attribute("id").Value,
-                    tags,
-                    int.Parse(cargo?.Attribute("max").Value)
-                );
+                var amount = int.Parse(cargo?.Attribute("max")?.Value ?? "");
+
+                return new ModuleStorage(moduleID, transportTypeID, amount);
             }
             catch
             {
-                return ("", "", 0);
+                return null;
             }
         }
     }

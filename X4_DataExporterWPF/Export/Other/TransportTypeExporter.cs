@@ -1,5 +1,6 @@
 ﻿using System.Data.SQLite;
 using LibX4.Lang;
+using X4_DataExporterWPF.Entity;
 
 namespace X4_DataExporterWPF.Export
 {
@@ -49,11 +50,11 @@ CREATE TABLE IF NOT EXISTS TransportType
             ////////////////
             {
                 // TODO: 可能ならファイルから抽出する
-                (string, string)[] items =
+                TransportType[] items =
                 {
-                    ("container", "{20205, 100}"),
-                    ("liquid",    "{20205, 300}"),
-                    ("solid",     "{20205, 200}")
+                    new TransportType("container", "{20205, 100}"),
+                    new TransportType("liquid",    "{20205, 300}"),
+                    new TransportType("solid",     "{20205, 200}")
                 };
 
                 // レコード追加
@@ -61,8 +62,8 @@ CREATE TABLE IF NOT EXISTS TransportType
                 foreach (var item in items)
                 {
                     cmd.Parameters.Clear();
-                    cmd.Parameters.AddWithValue("transportTypeID", item.Item1);
-                    cmd.Parameters.AddWithValue("name", Resolver.Resolve(item.Item2));
+                    cmd.Parameters.AddWithValue("transportTypeID", item.TransportTypeID);
+                    cmd.Parameters.AddWithValue("name", Resolver.Resolve(item.Name));
                     cmd.ExecuteNonQuery();
                 }
             }

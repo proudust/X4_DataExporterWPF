@@ -4,6 +4,7 @@ using System.Linq;
 using System.Xml.Linq;
 using System.Xml.XPath;
 using LibX4.Lang;
+using X4_DataExporterWPF.Entity;
 
 namespace X4_DataExporterWPF.Export
 {
@@ -70,30 +71,35 @@ CREATE TABLE IF NOT EXISTS WareProduction
                     ware => ware.XPathSelectElements("production").Select
                     (
                         prod =>
-                        (
-                            ware.Attribute("id")?.Value,
-                            prod.Attribute("method")?.Value,
-                            _Resolver.Resolve(prod.Attribute("name")?.Value ?? ""),
-                            int.Parse(prod.Attribute("amount")?.Value ?? "0"),
-                            double.Parse(prod.Attribute("time")?.Value ?? "0.0")
-                        )
+                        {
+                            var wareID = ware.Attribute("id")?.Value;
+                            if (string.IsNullOrEmpty(wareID)) return null;
+
+                            var method = prod.Attribute("method")?.Value;
+                            if (string.IsNullOrEmpty(method)) return null;
+
+                            var name = _Resolver.Resolve(prod.Attribute("name")?.Value ?? "");
+                            var amount = int.Parse(prod.Attribute("amount")?.Value ?? "0");
+                            var time = double.Parse(prod.Attribute("time")?.Value ?? "0.0");
+
+                            return new WareProduction(wareID, method, name, amount, time);
+                        }
                     )
                 )
                 .Where
                 (
-                    x => !string.IsNullOrEmpty(x.Item1) &&
-                         !string.IsNullOrEmpty(x.Item2)
+                    x => x != null
                 );
 
                 cmd.CommandText = "INSERT INTO WareProduction (WareID, Method, Name, Amount, Time) values (@wareID, @method, @name, @amount, @time)";
                 foreach (var item in items)
                 {
                     cmd.Parameters.Clear();
-                    cmd.Parameters.AddWithValue("@wareID",  item.Item1);
-                    cmd.Parameters.AddWithValue("@method",  item.Item2);
-                    cmd.Parameters.AddWithValue("@name",    item.Item3);
-                    cmd.Parameters.AddWithValue("@amount",  item.Item4);
-                    cmd.Parameters.AddWithValue("@time",    item.Item5);
+                    cmd.Parameters.AddWithValue("@wareID",  item.WareID);
+                    cmd.Parameters.AddWithValue("@method",  item.Method);
+                    cmd.Parameters.AddWithValue("@name",    item.Name);
+                    cmd.Parameters.AddWithValue("@amount",  item.Amount);
+                    cmd.Parameters.AddWithValue("@time",    item.Time);
 
                     cmd.ExecuteNonQuery();
                 }

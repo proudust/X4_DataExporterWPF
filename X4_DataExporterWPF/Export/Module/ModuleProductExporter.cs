@@ -4,6 +4,7 @@ using System.Linq;
 using System.Xml.Linq;
 using System.Xml.XPath;
 using LibX4.FileSystem;
+using X4_DataExporterWPF.Entity;
 
 namespace X4_DataExporterWPF.Export
 {
@@ -70,18 +71,16 @@ CREATE TABLE IF NOT EXISTS ModuleProduct
                 )
                 .Where
                 (
-                    x => !string.IsNullOrEmpty(x.Item1) &&
-                         !string.IsNullOrEmpty(x.Item2) &&
-                         !string.IsNullOrEmpty(x.Item3)
+                    x => x != null
                 );
 
                 cmd.CommandText = "INSERT INTO ModuleProduct (ModuleID, WareID, Method) values (@moduleID, @wareID, @method)";
                 foreach (var item in items)
                 {
                     cmd.Parameters.Clear();
-                    cmd.Parameters.AddWithValue("@moduleID", item.Item1);
-                    cmd.Parameters.AddWithValue("@wareID",   item.Item2);
-                    cmd.Parameters.AddWithValue("@method",   item.Item3);
+                    cmd.Parameters.AddWithValue("@moduleID", item.ModuleID);
+                    cmd.Parameters.AddWithValue("@wareID",   item.WareID);
+                    cmd.Parameters.AddWithValue("@method",   item.Method);
 
                     cmd.ExecuteNonQuery();
                 }
@@ -94,24 +93,27 @@ CREATE TABLE IF NOT EXISTS ModuleProduct
         /// </summary>
         /// <param name="module"></param>
         /// <returns></returns>
-        private (string, string, string) GetRecord(XElement module)
+        private ModuleProduct? GetRecord(XElement module)
         {
             try
             {
+                var moduleID = module.Attribute("id").Value;
+                if (string.IsNullOrEmpty(moduleID)) return null;
+
                 var macroName = module.XPathSelectElement("component").Attribute("ref").Value;
                 var macroXml = _CatFile.OpenIndexXml("index/macros.xml", macroName);
-
                 var prod = macroXml.Root.XPathSelectElement("macro/properties/production/queue");
 
-                return (
-                    module.Attribute("id").Value,
-                    prod?.Attribute("ware").Value,
-                    prod?.Attribute("method")?.Value ?? "default"
-                );
+                var wareID = prod?.Attribute("ware")?.Value;
+                if (string.IsNullOrEmpty(wareID)) return null;
+
+                var method = prod?.Attribute("method")?.Value ?? "default";
+
+                return new ModuleProduct(moduleID, wareID, method);
             }
             catch
             {
-                return ("", "", "");
+                return null;
             }
         }
     }

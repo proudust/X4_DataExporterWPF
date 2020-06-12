@@ -5,6 +5,7 @@ using System.Linq;
 using System.Xml.Linq;
 using System.Xml.XPath;
 using LibX4.FileSystem;
+using X4_DataExporterWPF.Entity;
 
 namespace X4_DataExporterWPF.Export
 {
@@ -70,8 +71,7 @@ CREATE TABLE IF NOT EXISTS ModuleShield
                 )
                 .Where
                 (
-                    x => !string.IsNullOrEmpty(x.Item1) &&
-                         !string.IsNullOrEmpty(x.Item2)
+                    x => x != null
                 );
 
 
@@ -79,9 +79,9 @@ CREATE TABLE IF NOT EXISTS ModuleShield
                 foreach (var item in items)
                 {
                     cmd.Parameters.Clear();
-                    cmd.Parameters.AddWithValue("@moduleID", item.Item1);
-                    cmd.Parameters.AddWithValue("@sizeID",   item.Item2);
-                    cmd.Parameters.AddWithValue("@amount",   item.Item3);
+                    cmd.Parameters.AddWithValue("@moduleID", item.ModuleID);
+                    cmd.Parameters.AddWithValue("@sizeID",   item.SizeID);
+                    cmd.Parameters.AddWithValue("@amount",   item.Amount);
 
                     cmd.ExecuteNonQuery();
                 }
@@ -94,10 +94,13 @@ CREATE TABLE IF NOT EXISTS ModuleShield
         /// </summary>
         /// <param name="module"></param>
         /// <returns></returns>
-        private IEnumerable<(string, string, int)> GetRecords(XElement module)
+        private IEnumerable<ModuleShield> GetRecords(XElement module)
         {
             try
             {
+                var moduleID = module.Attribute("id")?.Value;
+                if (string.IsNullOrEmpty(moduleID)) return Enumerable.Empty<ModuleShield>();
+
                 var macroName = module.XPathSelectElement("component").Attribute("ref").Value;
                 var macroXml = _CatFile.OpenIndexXml("index/macros.xml", macroName);
                 var componentXml = _CatFile.OpenIndexXml("index/components.xml", macroXml.Root.XPathSelectElement("macro/component").Attribute("ref").Value);
@@ -134,17 +137,12 @@ CREATE TABLE IF NOT EXISTS ModuleShield
                 )
                 .Select
                 (
-                    x =>
-                    (
-                        module.Attribute("id").Value,
-                        x.Key,
-                        x.Value
-                    )
+                    x => new ModuleShield(moduleID, x.Key, x.Value)
                 );
             }
             catch
             {
-                return Enumerable.Empty<(string, string, int)>();
+                return Enumerable.Empty<ModuleShield>();
             }
         }
     }

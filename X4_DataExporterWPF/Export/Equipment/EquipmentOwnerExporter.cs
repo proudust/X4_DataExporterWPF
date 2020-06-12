@@ -3,6 +3,7 @@ using System.Data.SQLite;
 using System.Linq;
 using System.Xml.Linq;
 using System.Xml.XPath;
+using X4_DataExporterWPF.Entity;
 
 namespace X4_DataExporterWPF.Export
 {
@@ -59,24 +60,26 @@ CREATE TABLE IF NOT EXISTS EquipmentOwner
                     equipment => equipment.XPathSelectElements("owner").Select
                     (
                         owner =>
-                        (
-                            equipment.Attribute("id")?.Value,
-                            owner.Attribute("faction")?.Value
-                        )
+                        {
+                            var equipmentID = equipment.Attribute("id")?.Value;
+                            if (string.IsNullOrEmpty(equipmentID)) return null;
+                            var factionID = owner.Attribute("faction")?.Value;
+                            if (string.IsNullOrEmpty(factionID)) return null;
+                            return new EquipmentOwner(equipmentID,factionID);
+                        }
                     )
                 )
                 .Where
                 (
-                    x => !string.IsNullOrEmpty(x.Item1) &&
-                         !string.IsNullOrEmpty(x.Item2)
+                    x => x != null
                 );
 
                 cmd.CommandText = "INSERT INTO EquipmentOwner (EquipmentID, FactionID) values (@equipmentID, @factionID)";
                 foreach (var item in items)
                 {
                     cmd.Parameters.Clear();
-                    cmd.Parameters.AddWithValue("@equipmentID", item.Item1);
-                    cmd.Parameters.AddWithValue("@factionID", item.Item2);
+                    cmd.Parameters.AddWithValue("@equipmentID", item.EquipmentID);
+                    cmd.Parameters.AddWithValue("@factionID", item.FactionID);
 
                     cmd.ExecuteNonQuery();
                 }

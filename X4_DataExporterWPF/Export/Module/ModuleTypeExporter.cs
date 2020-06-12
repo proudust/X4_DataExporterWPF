@@ -1,6 +1,6 @@
 ﻿using System.Data.SQLite;
 using LibX4.Lang;
-
+using X4_DataExporterWPF.Entity;
 
 namespace X4_DataExporterWPF.Export
 {
@@ -52,24 +52,24 @@ CREATE TABLE IF NOT EXISTS ModuleType
             ////////////////
             {
                 // TODO:可能ならファイルから抽出する
-                (string, string)[] items = {
-                    ("buildmodule",         "{20104,  69901}"),
-                    ("connectionmodule",    "{20104,  59901}"),
-                    ("defencemodule",       "{20104,  49901}"),
-                    ("dockarea",            "{20104,  70001}"),
-                    ("habitation",          "{20104,  39901}"),
-                    ("pier",                "{20104,  71101}"),
-                    ("production",          "{20104,  19901}"),
-                    ("storage",             "{20104,  29901}"),
-                    ("ventureplatform",     "{20104, 101901}")
+                ModuleType[] items = {
+                    new ModuleType("buildmodule",         "{20104,  69901}"),
+                    new ModuleType("connectionmodule",    "{20104,  59901}"),
+                    new ModuleType("defencemodule",       "{20104,  49901}"),
+                    new ModuleType("dockarea",            "{20104,  70001}"),
+                    new ModuleType("habitation",          "{20104,  39901}"),
+                    new ModuleType("pier",                "{20104,  71101}"),
+                    new ModuleType("production",          "{20104,  19901}"),
+                    new ModuleType("storage",             "{20104,  29901}"),
+                    new ModuleType("ventureplatform",     "{20104, 101901}")
                 };
 
                 cmd.CommandText = "INSERT INTO ModuleType(ModuleTypeID, Name) values(@moduleTypeID, @name)";
                 foreach (var item in items)
                 {
                     cmd.Parameters.Clear();
-                    cmd.Parameters.AddWithValue("@moduleTypeID", item.Item1);
-                    cmd.Parameters.AddWithValue("@name",         _Resolver.Resolve(item.Item2));
+                    cmd.Parameters.AddWithValue("@moduleTypeID", item.ModuleTypeID);
+                    cmd.Parameters.AddWithValue("@name",         _Resolver.Resolve(item.Name));
 
                     cmd.ExecuteNonQuery();
                 }
