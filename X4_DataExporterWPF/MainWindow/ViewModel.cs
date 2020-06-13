@@ -6,11 +6,10 @@ using System.Windows;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
-using X4_ComplexCalculator.Common;
 
 namespace X4_DataExporterWPF.MainWindow
 {
-    class ViewModel : INotifyPropertyChangedBace
+    class ViewModel : BindingBase
     {
         #region メンバ
         /// <summary>

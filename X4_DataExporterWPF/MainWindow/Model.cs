@@ -9,7 +9,6 @@ using System.Xml.XPath;
 using CommandLine;
 using LibX4.FileSystem;
 using LibX4.Lang;
-using X4_DataExporterWPF.Common;
 using X4_DataExporterWPF.Export;
 
 namespace X4_DataExporterWPF.MainWindow
