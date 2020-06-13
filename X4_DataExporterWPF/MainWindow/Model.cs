@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data;
 using System.Data.SQLite;
 using System.IO;
 using System.Linq;
@@ -217,7 +218,6 @@ namespace X4_DataExporterWPF.MainWindow
                 conn.Open();
 
                 using var trans = conn.BeginTransaction();
-                using var cmd = conn.CreateCommand();
 
                 var resolver = new LangageResolver(catFile);
 
@@ -274,7 +274,7 @@ namespace X4_DataExporterWPF.MainWindow
                 CurrentStep = 0;
                 foreach (var exporter in exporters)
                 {
-                    exporter.Export(cmd);
+                    exporter.Export(conn);
                     CurrentStep++;
                     DoEvents();
                 }

@@ -1,9 +1,10 @@
 ﻿using System.Data;
-using System.Data.SQLite;
 using System.Linq;
 using System.Xml.Linq;
 using System.Xml.XPath;
+using Dapper;
 using LibX4.Lang;
+using X4_DataExporterWPF.Entity;
 
 namespace X4_DataExporterWPF.Export
 {
@@ -37,13 +38,13 @@ namespace X4_DataExporterWPF.Export
         /// データ抽出
         /// </summary>
         /// <param name="cmd"></param>
-        public void Export(SQLiteCommand cmd)
+        public void Export(IDbConnection connection)
         {
             //////////////////
             // テーブル作成 //
             //////////////////
             {
-                cmd.CommandText = @"
+                connection.Execute(@"
 CREATE TABLE IF NOT EXISTS Ware
 (
     WareID          TEXT    NOT NULL PRIMARY KEY,
@@ -58,8 +59,7 @@ CREATE TABLE IF NOT EXISTS Ware
     MaxPrice        INTEGER NOT NULL,
     FOREIGN KEY (WareGroupID)       REFERENCES WareGroup(WareGroupID),
     FOREIGN KEY (TransportTypeID)   REFERENCES TransportType(TransportTypeID)
-) WITHOUT ROWID";
-                cmd.ExecuteNonQuery();
+) WITHOUT ROWID");
             }
 
             ////////////////
@@ -69,47 +69,35 @@ CREATE TABLE IF NOT EXISTS Ware
                 var items = _WaresXml.Root.XPathSelectElements("ware[contains(@tags, 'economy')]").Select
                 (x =>
                 {
-                    var price = x.Element("price");
+                    var wareID = x.Attribute("id")?.Value;
+                    if (string.IsNullOrEmpty(wareID)) return null;
 
-                    return (
-                        x.Attribute("id")?.Value,
-                        x.Attribute("group")?.Value,
-                        x.Attribute("transport")?.Value,
-                        _Resolver.Resolve(x.Attribute("name")?.Value ?? ""),
-                        _Resolver.Resolve(x.Attribute("description")?.Value ?? ""),
-                        _Resolver.Resolve(x.Attribute("factoryname")?.Value ?? ""),
-                        int.Parse(x.Attribute("volume")?.Value ?? "0"),
-                        int.Parse(price.Attribute("min")?.Value ?? "0"),
-                        int.Parse(price.Attribute("average")?.Value ?? "0"),
-                        int.Parse(price.Attribute("max")?.Value ?? "0")
-                    );
+                    var wareGroupID = x.Attribute("group")?.Value;
+                    if (string.IsNullOrEmpty(wareGroupID)) return null;
+
+                    var transportTypeID = x.Attribute("transport")?.Value;
+                    if (string.IsNullOrEmpty(transportTypeID)) return null;
+
+                    var name = _Resolver.Resolve(x.Attribute("name")?.Value ?? "");
+                    if (string.IsNullOrEmpty(name)) return null;
+
+                    var description = _Resolver.Resolve(x.Attribute("description")?.Value ?? "");
+                    var factoryName = _Resolver.Resolve(x.Attribute("factoryname")?.Value ?? "");
+                    var volume = int.Parse(x.Attribute("volume")?.Value ?? "0");
+
+                    var price = x.Element("price");
+                    var minPrice = int.Parse(price.Attribute("min")?.Value ?? "0");
+                    var avgPrice = int.Parse(price.Attribute("average")?.Value ?? "0");
+                    var maxPrice = int.Parse(price.Attribute("max")?.Value ?? "0");
+
+                    return new Ware(wareID, wareGroupID, transportTypeID, name, description, factoryName, volume, minPrice, avgPrice, maxPrice);
                 })
                 .Where
                 (
-                    x => !string.IsNullOrEmpty(x.Item1) &&
-                         !string.IsNullOrEmpty(x.Item2) &&
-                         !string.IsNullOrEmpty(x.Item3) &&
-                         !string.IsNullOrEmpty(x.Item4)
+                    x => x != null
                 );
 
-                cmd.CommandText = "INSERT INTO Ware (WareID, WareGroupID, TransportTypeID, Name, Description, FactoryName, Volume, MinPrice, AvgPrice, MaxPrice) VALUES(@wareID, @wareGroupID, @transportTypeID, @name, @description, @factoryName, @volume, @minPrice, @avgPrice, @maxPrice)";
-                foreach (var item in items)
-                {
-                    cmd.Parameters.Clear();
-
-                    cmd.Parameters.AddWithValue("@wareID",          item.Item1);
-                    cmd.Parameters.AddWithValue("@wareGroupID",     item.Item2);
-                    cmd.Parameters.AddWithValue("@transportTypeID", item.Item3);
-                    cmd.Parameters.AddWithValue("@name",            item.Item4);
-                    cmd.Parameters.AddWithValue("@description",     item.Item5);
-                    cmd.Parameters.AddWithValue("@factoryName",     item.Item6);
-                    cmd.Parameters.AddWithValue("@volume",          item.Item7);
-                    cmd.Parameters.AddWithValue("@minPrice",        item.Item8);
-                    cmd.Parameters.AddWithValue("@avgPrice",        item.Item9);
-                    cmd.Parameters.AddWithValue("@maxPrice",        item.Item10);
-
-                    cmd.ExecuteNonQuery();
-                }
+                connection.Execute("INSERT INTO Ware (WareID, WareGroupID, TransportTypeID, Name, Description, FactoryName, Volume, MinPrice, AvgPrice, MaxPrice) VALUES (@WareID, @WareGroupID, @TransportTypeID, @Name, @Description, @FactoryName, @Volume, @MinPrice, @AvgPrice, @MaxPrice)", items);
             }
         }
     }

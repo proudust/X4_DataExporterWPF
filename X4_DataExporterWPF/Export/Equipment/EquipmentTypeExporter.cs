@@ -1,5 +1,7 @@
-﻿using System.Data.SQLite;
+﻿using System.Data;
+using Dapper;
 using LibX4.Lang;
+using X4_DataExporterWPF.Entity;
 
 namespace X4_DataExporterWPF.Export
 {
@@ -28,19 +30,18 @@ namespace X4_DataExporterWPF.Export
         /// 抽出処理
         /// </summary>
         /// <param name="cmd"></param>
-        public void Export(SQLiteCommand cmd)
+        public void Export(IDbConnection connection)
         {
             //////////////////
             // テーブル作成 //
             //////////////////
             {
-                cmd.CommandText = @"
+                connection.Execute(@"
 CREATE TABLE IF NOT EXISTS EquipmentType
 (
     EquipmentTypeID TEXT    NOT NULL PRIMARY KEY,
     Name            TEXT    NOT NULL
-) WITHOUT ROWID";
-                cmd.ExecuteNonQuery();
+) WITHOUT ROWID");
             }
 
 
@@ -49,28 +50,20 @@ CREATE TABLE IF NOT EXISTS EquipmentType
             ////////////////
             {
                 // TODO: 可能ならファイルから抽出する
-                (string, string)[] items =
+                EquipmentType[] items =
                 {
-                    ("countermeasures", "{20215, 1701}"),
-                    ("drones",          "{20215, 1601}"),
-                    ("engines",         "{20215, 1801}"),
-                    ("missiles",        "{20215, 1901}"),
-                    ("shields",         "{20215, 2001}"),
-                    ("software",        "{20215, 2101}"),
-                    ("thrusters",       "{20215, 2201}"),
-                    ("turrets",         "{20215, 2301}"),
-                    ("weapons",         "{20215, 2401}")
+                    new EquipmentType("countermeasures", _Resolver.Resolve("{20215, 1701}")),
+                    new EquipmentType("drones",          _Resolver.Resolve("{20215, 1601}")),
+                    new EquipmentType("engines",         _Resolver.Resolve("{20215, 1801}")),
+                    new EquipmentType("missiles",        _Resolver.Resolve("{20215, 1901}")),
+                    new EquipmentType("shields",         _Resolver.Resolve("{20215, 2001}")),
+                    new EquipmentType("software",        _Resolver.Resolve("{20215, 2101}")),
+                    new EquipmentType("thrusters",       _Resolver.Resolve("{20215, 2201}")),
+                    new EquipmentType("turrets",         _Resolver.Resolve("{20215, 2301}")),
+                    new EquipmentType("weapons",         _Resolver.Resolve("{20215, 2401}"))
                 };
 
-                cmd.CommandText = "INSERT INTO EquipmentType (EquipmentTypeID, Name) values (@equipmentTypeID, @name)";
-                foreach (var item in items)
-                {
-                    cmd.Parameters.Clear();
-                    cmd.Parameters.AddWithValue("@equipmentTypeID", item.Item1);
-                    cmd.Parameters.AddWithValue("@name",            _Resolver.Resolve(item.Item2));
-
-                    cmd.ExecuteNonQuery();
-                }
+                connection.Execute("INSERT INTO EquipmentType (EquipmentTypeID, Name) VALUES (@EquipmentTypeID, @Name)", items);
             }
         }
     }

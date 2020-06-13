@@ -1,5 +1,7 @@
-﻿using System.Data.SQLite;
+﻿using System.Data;
+using Dapper;
 using LibX4.Lang;
+using X4_DataExporterWPF.Entity;
 
 namespace X4_DataExporterWPF.Export
 {
@@ -28,19 +30,18 @@ namespace X4_DataExporterWPF.Export
         /// 抽出処理
         /// </summary>
         /// <param name="cmd"></param>
-        public void Export(SQLiteCommand cmd)
+        public void Export(IDbConnection connection)
         {
             //////////////////
             // テーブル作成 //
             //////////////////
             {
-                cmd.CommandText = @"
+                connection.Execute(@"
 CREATE TABLE IF NOT EXISTS Size
 (
     SizeID  TEXT    NOT NULL PRIMARY KEY,
     Name    TEXT    NOT NULL
-) WITHOUT ROWID";
-                cmd.ExecuteNonQuery();
+) WITHOUT ROWID");
             }
 
 
@@ -49,23 +50,16 @@ CREATE TABLE IF NOT EXISTS Size
             ////////////////
             {
                 // TODO:可能ならファイルから抽出する
-                (string, string)[] items =
+                Size[] items =
                 {
-                    ("extrasmall",  "{1001, 52}"),
-                    ("small",       "{1001, 51}"),
-                    ("medium",      "{1001, 50}"),
-                    ("large",       "{1001, 49}"),
-                    ("extralarge",  "{1001, 48}")
+                    new Size("extrasmall",  Resolver.Resolve("{1001, 52}")),
+                    new Size("small",       Resolver.Resolve("{1001, 51}")),
+                    new Size("medium",      Resolver.Resolve("{1001, 50}")),
+                    new Size("large",       Resolver.Resolve("{1001, 49}")),
+                    new Size("extralarge",  Resolver.Resolve("{1001, 48}")),
                 };
 
-                cmd.CommandText = "INSERT INTO Size (SizeID, Name) values (@sizeID, @name)";
-                foreach (var item in items)
-                {
-                    cmd.Parameters.AddWithValue("sizeID", item.Item1);
-                    cmd.Parameters.AddWithValue("name", Resolver.Resolve(item.Item2));
-
-                    cmd.ExecuteNonQuery();
-                }
+                connection.Execute("INSERT INTO Size (SizeID, Name) VALUES (@SizeID, @Name)", items);
             }
         }
     }

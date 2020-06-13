@@ -1,9 +1,10 @@
 ﻿using System.Data;
-using System.Data.SQLite;
 using System.Linq;
 using System.Xml.Linq;
+using Dapper;
 using LibX4.FileSystem;
 using LibX4.Lang;
+using X4_DataExporterWPF.Entity;
 
 namespace X4_DataExporterWPF.Export
 {
@@ -41,20 +42,19 @@ namespace X4_DataExporterWPF.Export
         /// データ抽出
         /// </summary>
         /// <param name="cmd"></param>
-        public void Export(SQLiteCommand cmd)
+        public void Export(IDbConnection connection)
         {
             //////////////////
             // テーブル作成 //
             //////////////////
             {
-                cmd.CommandText = @"
+                connection.Execute(@"
 CREATE TABLE IF NOT EXISTS Race
 (
     RaceID      TEXT    NOT NULL PRIMARY KEY,
     Name        TEXT    NOT NULL,
     ShortName   TEXT    NOT NULL
-) WITHOUT ROWID";
-                cmd.ExecuteNonQuery();
+) WITHOUT ROWID");
             }
 
 
@@ -65,27 +65,24 @@ CREATE TABLE IF NOT EXISTS Race
                 var items = _RaceXml.Root.Elements().Select
                 (
                     x =>
-                    (
-                        x.Attribute("id")?.Value ?? "",
-                        _Resolver.Resolve(x.Attribute("name")?.Value ?? ""),
-                        _Resolver.Resolve(x.Attribute("shortname")?.Value ?? "")
-                    )
+                    {
+                        var raceID = x.Attribute("id")?.Value;
+                        if (string.IsNullOrEmpty(raceID)) return null;
+
+                        var name = _Resolver.Resolve(x.Attribute("name")?.Value ?? "");
+                        if (string.IsNullOrEmpty(name)) return null;
+
+                        var shortName = _Resolver.Resolve(x.Attribute("shortname")?.Value ?? "");
+
+                        return new Race(raceID, name, shortName);
+                    }
                 )
                 .Where
                 (
-                    x => !string.IsNullOrEmpty(x.Item1) &&
-                         !string.IsNullOrEmpty(x.Item2)
+                    x => x != null
                 );
 
-                cmd.CommandText = "INSERT INTO Race (RaceID, Name, ShortName) VALUES(@racdID, @name, @shortName)";
-                foreach (var item in items)
-                {
-                    cmd.Parameters.Clear();
-                    cmd.Parameters.AddWithValue("@racdID",      item.Item1);
-                    cmd.Parameters.AddWithValue("@name",        item.Item2);
-                    cmd.Parameters.AddWithValue("@shortName",   item.Item3);
-                    cmd.ExecuteNonQuery();
-                }
+                connection.Execute("INSERT INTO Race (RaceID, Name, ShortName) VALUES (@RaceID, @Name, @ShortName)", items);
             }
         }
     }

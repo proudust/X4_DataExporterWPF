@@ -1,8 +1,9 @@
 ﻿using System.Data;
-using System.Data.SQLite;
 using System.Linq;
 using System.Xml.Linq;
 using System.Xml.XPath;
+using Dapper;
+using X4_DataExporterWPF.Entity;
 
 namespace X4_DataExporterWPF.Export
 {
@@ -30,13 +31,13 @@ namespace X4_DataExporterWPF.Export
         /// 抽出処理
         /// </summary>
         /// <param name="cmd"></param>
-        public void Export(SQLiteCommand cmd)
+        public void Export(IDbConnection connection)
         {
             //////////////////
             // テーブル作成 //
             //////////////////
             {
-                cmd.CommandText = @"
+                connection.Execute(@"
 CREATE TABLE IF NOT EXISTS EquipmentResource
 (
     EquipmentID TEXT    NOT NULL,
@@ -46,8 +47,7 @@ CREATE TABLE IF NOT EXISTS EquipmentResource
     PRIMARY KEY (EquipmentID, Method, NeedWareID),
     FOREIGN KEY (EquipmentID)   REFERENCES Equipment(EquipmentID),
     FOREIGN KEY (NeedWareID)    REFERENCES Ware(WareID)
-) WITHOUT ROWID";
-                cmd.ExecuteNonQuery();
+) WITHOUT ROWID");
             }
 
 
@@ -62,34 +62,26 @@ CREATE TABLE IF NOT EXISTS EquipmentResource
                         prod => prod.XPathSelectElements("primary/ware").Select
                         (
                             ware =>
-                            (
-                                equipment.Attribute("id")?.Value ?? "",
-                                prod.Attribute("method")?.Value ?? "",
-                                ware.Attribute("ware")?.Value ?? "",
-                                int.Parse(ware.Attribute("amount").Value ?? "0")
-                            )
+                            {
+                                var equipmentID = equipment.Attribute("id")?.Value;
+                                if (string.IsNullOrEmpty(equipmentID)) return null;
+                                var method = prod.Attribute("method")?.Value;
+                                if (string.IsNullOrEmpty(method)) return null;
+                                var needWareID = ware.Attribute("ware")?.Value;
+                                if (string.IsNullOrEmpty(needWareID)) return null;
+                                var amount = int.Parse(ware.Attribute("amount").Value ?? "0");
+                                return new EquipmentResource(equipmentID, method, needWareID, amount);
+                            }
                         )
                     )
                 )
                 .Where
                 (
-                    x => !string.IsNullOrEmpty(x.Item1) &&
-                         !string.IsNullOrEmpty(x.Item2) &&
-                         !string.IsNullOrEmpty(x.Item3)
+                    x => x != null
                 );
 
 
-                cmd.CommandText = "INSERT INTO EquipmentResource (EquipmentID, Method, NeedWareID, Amount) values (@equipmentID, @method, @needWareID, @amount)";
-                foreach (var item in items)
-                {
-                    cmd.Parameters.Clear();
-                    cmd.Parameters.AddWithValue("@equipmentID", item.Item1);
-                    cmd.Parameters.AddWithValue("@method",      item.Item2);
-                    cmd.Parameters.AddWithValue("@needWareID",  item.Item3);
-                    cmd.Parameters.AddWithValue("@amount",      item.Item4);
-
-                    cmd.ExecuteNonQuery();
-                }
+                connection.Execute("INSERT INTO EquipmentResource (EquipmentID, Method, NeedWareID, Amount) VALUES (@EquipmentID, @Method, @NeedWareID, @Amount)", items);
             }
         }
     }

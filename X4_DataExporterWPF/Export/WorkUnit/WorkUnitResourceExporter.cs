@@ -1,8 +1,9 @@
 ﻿using System.Data;
-using System.Data.SQLite;
 using System.Linq;
 using System.Xml.Linq;
 using System.Xml.XPath;
+using Dapper;
+using X4_DataExporterWPF.Entity;
 
 namespace X4_DataExporterWPF.Export
 {
@@ -31,13 +32,13 @@ namespace X4_DataExporterWPF.Export
         /// 抽出処理
         /// </summary>
         /// <param name="cmd"></param>
-        public void Export(SQLiteCommand cmd)
+        public void Export(IDbConnection connection)
         {
             //////////////////
             // テーブル作成 //
             //////////////////
             {
-                cmd.CommandText = @"
+                connection.Execute(@"
 CREATE TABLE IF NOT EXISTS WorkUnitResource
 (
     WorkUnitID  TEXT    NOT NULL,
@@ -46,8 +47,7 @@ CREATE TABLE IF NOT EXISTS WorkUnitResource
     Amount      INTEGER NOT NULL,
     PRIMARY KEY (WorkUnitID, Method, WareID),
     FOREIGN KEY (WareID)   REFERENCES Ware(WareID)
-) WITHOUT ROWID";
-                cmd.ExecuteNonQuery();
+) WITHOUT ROWID");
             }
 
 
@@ -62,33 +62,29 @@ CREATE TABLE IF NOT EXISTS WorkUnitResource
                         prod => prod.XPathSelectElements("primary/ware").Select
                         (
                             ware =>
-                            (
-                                workUnit.Attribute("id")?.Value,
-                                prod.Attribute("method")?.Value,
-                                ware.Attribute("ware")?.Value,
-                                int.Parse(ware.Attribute("amount")?.Value ?? "0")
-                            )
+                            {
+                                var workUnitID = workUnit.Attribute("id")?.Value;
+                                if (string.IsNullOrEmpty(workUnitID)) return null;
+
+                                var method = prod.Attribute("method")?.Value;
+                                if (string.IsNullOrEmpty(method)) return null;
+
+                                var wareID = ware.Attribute("ware")?.Value;
+                                if (string.IsNullOrEmpty(wareID)) return null;
+
+                                var amount = int.Parse(ware.Attribute("amount")?.Value ?? "0");
+
+                                return new WorkUnitResource(workUnitID, method, wareID, amount);
+                            }
                         )
                     )
                 )
                 .Where
                 (
-                    x => !string.IsNullOrEmpty(x.Item1) &&
-                         !string.IsNullOrEmpty(x.Item2) &&
-                         !string.IsNullOrEmpty(x.Item3)
+                    x => x != null
                 );
 
-                cmd.CommandText = "INSERT INTO WorkUnitResource (WorkUnitID, Method, WareID, Amount) values (@workUnitID, @method, @wareID, @amount)";
-                foreach (var item in items)
-                {
-                    cmd.Parameters.Clear();
-                    cmd.Parameters.AddWithValue("@workUnitID",  item.Item1);
-                    cmd.Parameters.AddWithValue("@method",      item.Item2);
-                    cmd.Parameters.AddWithValue("@wareID",      item.Item3);
-                    cmd.Parameters.AddWithValue("@amount",      item.Item4);
-
-                    cmd.ExecuteNonQuery();
-                }
+                connection.Execute("INSERT INTO WorkUnitResource (WorkUnitID, Method, WareID, Amount) VALUES (@WorkUnitID, @Method, @WareID, @Amount)", items);
             }
         }
     }

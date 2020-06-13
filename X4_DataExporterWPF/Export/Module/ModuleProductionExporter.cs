@@ -1,9 +1,9 @@
 ﻿using System.Data;
-using System.Data.SQLite;
 using System.Linq;
 using System.Xml.Linq;
 using System.Xml.XPath;
-
+using Dapper;
+using X4_DataExporterWPF.Entity;
 
 namespace X4_DataExporterWPF.Export
 {
@@ -33,13 +33,13 @@ namespace X4_DataExporterWPF.Export
         /// 抽出処理
         /// </summary>
         /// <param name="cmd"></param>
-        public void Export(SQLiteCommand cmd)
+        public void Export(IDbConnection connection)
         {
             //////////////////
             // テーブル作成 //
             //////////////////
             {
-                cmd.CommandText = @"
+                connection.Execute(@"
 CREATE TABLE IF NOT EXISTS ModuleProduction
 (
     ModuleID    TEXT    NOT NULL,
@@ -47,8 +47,7 @@ CREATE TABLE IF NOT EXISTS ModuleProduction
     Time        REAL    NOT NULL,
     PRIMARY KEY (ModuleID, Method),
     FOREIGN KEY (ModuleID)  REFERENCES Module(ModuleID)
-) WITHOUT ROWID";
-                cmd.ExecuteNonQuery();
+) WITHOUT ROWID");
             }
 
 
@@ -61,30 +60,24 @@ CREATE TABLE IF NOT EXISTS ModuleProduction
                     module => module.XPathSelectElements("production").Select
                     (
                         prod =>
-                        (
-                            module.Attribute("id")?.Value,
-                            prod.Attribute("method")?.Value,
-                            double.Parse(prod.Attribute("time")?.Value ?? "0.0")
-                        )
-                    )
+                        {
+                            var moduleID = module.Attribute("id")?.Value;
+                            if (string.IsNullOrEmpty(moduleID)) return null;
+
+                            var method = prod.Attribute("method")?.Value;
+                            if (string.IsNullOrEmpty(method)) return null;
+
+                            double time = double.Parse(prod.Attribute("time")?.Value ?? "0.0");
+                            return new ModuleProduction(moduleID, method, time);
+                        })
                 )
                 .Where
                 (
-                    x => !string.IsNullOrEmpty(x.Item1) &&
-                         !string.IsNullOrEmpty(x.Item2)
+                    x => x != null
                 );
 
 
-                cmd.CommandText = "INSERT INTO ModuleProduction (ModuleID, Method, Time) values (@moduleID, @method, @time)";
-                foreach (var item in items)
-                {
-                    cmd.Parameters.Clear();
-                    cmd.Parameters.AddWithValue("@moduleID", item.Item1);
-                    cmd.Parameters.AddWithValue("@method",   item.Item2);
-                    cmd.Parameters.AddWithValue("@time",     item.Item3);
-
-                    cmd.ExecuteNonQuery();
-                }
+                connection.Execute("INSERT INTO ModuleProduction (ModuleID, Method, Time) VALUES (@ModuleID, @Method, @Time)", items);
             }
         }
     }
