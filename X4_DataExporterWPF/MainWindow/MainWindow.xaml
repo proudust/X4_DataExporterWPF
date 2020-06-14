@@ -44,14 +44,13 @@
                     Grid.Column="0"
                     Background="WhiteSmoke"
                     IsReadOnly="True"
-                    Text="{Binding InDirPath}" />
+                    Text="{Binding InDirPath.Value}" />
 
                 <Button
                     Grid.Row="1"
                     Grid.Column="1"
                     Command="{Binding SelectInDirCommand, Mode=OneTime}"
-                    Content="..."
-                    IsEnabled="{Binding CanOperation, Mode=OneWay}" />
+                    Content="..." />
             </Grid>
         </GroupBox>
 
@@ -84,8 +83,7 @@
                     Width="20"
                     Height="20"
                     Command="{Binding SelectOutPathCommand, Mode=OneTime}"
-                    Content="..."
-                    IsEnabled="{Binding CanOperation, Mode=OneWay}" />
+                    Content="..." />
 
                 <TextBox
                     Grid.Row="1"
@@ -93,7 +91,7 @@
                     Background="WhiteSmoke"
                     DockPanel.Dock="Left"
                     IsReadOnly="True"
-                    Text="{Binding OutFilePath}" />
+                    Text="{Binding OutFilePath.Value}" />
 
                 <Label
                     Grid.Row="2"
@@ -107,9 +105,9 @@
                     Grid.ColumnSpan="2"
                     Background="WhiteSmoke"
                     DisplayMemberPath="Name"
-                    IsEnabled="{Binding CanOperation, Mode=OneWay}"
+                    IsEnabled="{Binding CanOperation.Value, Mode=OneWay}"
                     ItemsSource="{Binding Langages}"
-                    SelectedItem="{Binding SelectedLangage, Mode=OneWayToSource}" />
+                    SelectedItem="{Binding SelectedLangage.Value, Mode=OneWayToSource}" />
             </Grid>
         </GroupBox>
 
@@ -123,23 +121,21 @@
             <ProgressBar
                 Grid.Column="0"
                 Margin="3"
-                Maximum="{Binding MaxSteps, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
-                Value="{Binding CurrentStep, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
+                Maximum="{Binding MaxSteps.Value, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                Value="{Binding CurrentStep.Value, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
 
             <Button
                 Grid.Column="1"
                 Margin="3"
                 Command="{Binding ExportCommand, Mode=OneTime}"
-                Content="Export"
-                IsEnabled="{Binding CanExport, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" />
+                Content="Export" />
 
             <Button
                 Grid.Column="2"
                 Margin="3"
                 Command="{Binding CloseCommand, Mode=OneTime}"
                 CommandParameter="{Binding ElementName=Window}"
-                Content="Close"
-                IsEnabled="{Binding CanOperation, Mode=OneWay}" />
+                Content="Close" />
         </Grid>
     </Grid>
 </Window>

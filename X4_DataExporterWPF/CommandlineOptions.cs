@@ -1,6 +1,6 @@
 ﻿using CommandLine;
 
-namespace X4_DataExporterWPF.Common
+namespace X4_DataExporterWPF
 {
     class CommandlineOptions
     {

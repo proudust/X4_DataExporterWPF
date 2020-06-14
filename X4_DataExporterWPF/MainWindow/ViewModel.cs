@@ -1,21 +1,21 @@
-﻿using System.Collections.ObjectModel;
-using System.ComponentModel;
+﻿using System;
 using System.IO;
+using System.Reactive.Linq;
+using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Input;
 using Microsoft.WindowsAPICodePack.Dialogs;
-using X4_ComplexCalculator.Common;
-using X4_DataExporterWPF.Common;
+using Reactive.Bindings;
+using Reactive.Bindings.Extensions;
 
 namespace X4_DataExporterWPF.MainWindow
 {
-    class ViewModel : INotifyPropertyChangedBace
+    class ViewModel : BindingBase
     {
         #region メンバ
         /// <summary>
-        /// Model
+        /// モデル
         /// </summary>
-        private Model _Model = new Model();
+        private readonly Model _Model = new Model();
         #endregion
 
 
@@ -23,108 +23,67 @@ namespace X4_DataExporterWPF.MainWindow
         /// <summary>
         /// 入力元フォルダパス
         /// </summary>
-        public string InDirPath
-        {
-            get
-            {
-                return _Model.InDirPath;
-            }
-            set
-            {
-                if (_Model.InDirPath != value)
-                {
-                    _Model.InDirPath = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
+        public ReactiveProperty<string> InDirPath { get; }
 
 
         /// <summary>
         /// 出力先ファイルパス
         /// </summary>
-        public string OutFilePath
-        {
-            get
-            {
-                return _Model.OutFilePath;
-            }
-            set
-            {
-                if (_Model.OutFilePath != value)
-                {
-                    _Model.OutFilePath = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
+        public ReactiveProperty<string> OutFilePath { get; }
 
 
         /// <summary>
         /// 言語一覧
         /// </summary>
-        public ObservableCollection<LangComboboxItem> Langages => _Model.Langages;
+        public ReactiveCollection<LangComboboxItem> Langages { get; }
 
 
         /// <summary>
         /// 選択された言語
         /// </summary>
-        public LangComboboxItem SelectedLangage
-        {
-            set
-            {
-                _Model.SelectedLangage = value;
-                OnPropertyChanged(nameof(CanExport));
-            }
-        }
+        public ReactiveProperty<LangComboboxItem?> SelectedLangage { get; }
 
 
         /// <summary>
         /// 進捗最大
         /// </summary>
-        public int MaxSteps => _Model.MaxSteps;
+        public ReactiveProperty<int> MaxSteps { get; }
 
 
         /// <summary>
         /// 現在の進捗
         /// </summary>
-        public int CurrentStep => _Model.CurrentStep;
+        public ReactiveProperty<int> CurrentStep { get; }
 
 
         /// <summary>
         /// ユーザが操作可能か
         /// </summary>
-        public bool CanOperation => _Model.CanOperation;
-
-
-        /// <summary>
-        /// 抽出可能か
-        /// </summary>
-        public bool CanExport => CanOperation && _Model.SelectedLangage != null && !string.IsNullOrEmpty(_Model.OutFilePath);
+        public ReactiveProperty<bool> CanOperation { get; }
 
 
         /// <summary>
         /// 入力元フォルダ参照
         /// </summary>
-        public ICommand SelectInDirCommand { get; }
+        public ReactiveCommand SelectInDirCommand { get; }
 
 
         /// <summary>
         /// 出力先ファイルパス参照
         /// </summary>
-        public ICommand SelectOutPathCommand { get; }
+        public ReactiveCommand SelectOutPathCommand { get; }
 
 
         /// <summary>
         /// 抽出実行
         /// </summary>
-        public ICommand ExportCommand { get; }
+        public AsyncReactiveCommand ExportCommand { get; }
 
 
         /// <summary>
         /// ウィンドウを閉じる
         /// </summary>
-        public ICommand CloseCommand { get; }
+        public ReactiveCommand<Window> CloseCommand { get; }
         #endregion
 
 
@@ -134,43 +93,38 @@ namespace X4_DataExporterWPF.MainWindow
         /// </summary>
         public ViewModel()
         {
-            SelectInDirCommand = new DelegateCommand(SelectInDir);
-            SelectOutPathCommand = new DelegateCommand(SelectOutPath);
-            ExportCommand = new DelegateCommand(_Model.Export);
-            CloseCommand = new DelegateCommand<Window>(Close);
-            _Model.PropertyChanged += Model_OnPropertyChanged;
-        }
+            var options = _Model.GetCommandlineOptions();
 
+            InDirPath = new ReactiveProperty<string>(options.InputDirectory);
+            OutFilePath = new ReactiveProperty<string>(options.OutputFilePath);
 
-        /// <summary>
-        /// Modelのプロパティの値変更時
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void Model_OnPropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            switch (e.PropertyName)
+            Langages = new ReactiveCollection<LangComboboxItem>();
+            SelectedLangage = new ReactiveProperty<LangComboboxItem?>();
+
+            MaxSteps = new ReactiveProperty<int>(1);
+            CurrentStep = new ReactiveProperty<int>(0);
+
+            CanOperation = new ReactiveProperty<bool>(true);
+
+            // 操作可能かつ入力項目に不備がない場合に true にする
+            var canExport = new []{
+                CanOperation,
+                InDirPath.Select(p => !string.IsNullOrEmpty(p)),
+                OutFilePath.Select(p => !string.IsNullOrEmpty(p)),
+                SelectedLangage.Select(l => l != null),
+            }.CombineLatestValuesAreAllTrue();
+
+            SelectInDirCommand = new ReactiveCommand(CanOperation).WithSubscribe(SelectInDir);
+            SelectOutPathCommand = new ReactiveCommand(CanOperation).WithSubscribe(SelectOutPath);
+            ExportCommand = new AsyncReactiveCommand(canExport, CanOperation).WithSubscribe(Export);
+            CloseCommand = new ReactiveCommand<Window>(CanOperation).WithSubscribe(Close);
+
+            // 入力元フォルダパスが変更された時、言語一覧を更新する
+            InDirPath.Subscribe(path =>
             {
-                case nameof(_Model.MaxSteps):
-                    OnPropertyChanged(nameof(MaxSteps));
-                    break;
-
-                case nameof(_Model.CurrentStep):
-                    OnPropertyChanged(nameof(CurrentStep));
-                    break;
-
-                case nameof(_Model.CanOperation):
-                    OnPropertyChanged(nameof(CanOperation));
-                    OnPropertyChanged(nameof(CanExport));
-                    break;
-
-                case nameof(_Model.OutFilePath):
-                    OnPropertyChanged(nameof(CanExport));
-                    break;
-
-                default:
-                    break;
-            }
+                Langages.ClearOnScheduler();
+                Langages.AddRangeOnScheduler(_Model.GetLangages(path));
+            });
         }
 
 
@@ -181,11 +135,11 @@ namespace X4_DataExporterWPF.MainWindow
         {
             var dlg = new CommonOpenFileDialog();
             dlg.IsFolderPicker = true;
-            dlg.InitialDirectory = Path.GetDirectoryName(InDirPath);
+            dlg.InitialDirectory = Path.GetDirectoryName(InDirPath.Value);
 
             if (dlg.ShowDialog() == CommonFileDialogResult.Ok)
             {
-                InDirPath = dlg.FileName;
+                InDirPath.Value = dlg.FileName;
             }
         }
 
@@ -196,16 +150,30 @@ namespace X4_DataExporterWPF.MainWindow
         private void SelectOutPath()
         {
             var dlg = new CommonSaveFileDialog();
-            dlg.InitialDirectory = Path.GetDirectoryName(OutFilePath);
+            dlg.InitialDirectory = Path.GetDirectoryName(OutFilePath.Value);
             dlg.Filters.Add(new CommonFileDialogFilter("Database file", "*.db"));
             dlg.Filters.Add(new CommonFileDialogFilter("SQLite3 file", "*.sqlite"));
             dlg.Filters.Add(new CommonFileDialogFilter("All", "*.*"));
-            dlg.DefaultFileName = Path.GetFileName(OutFilePath);
+            dlg.DefaultFileName = Path.GetFileName(OutFilePath.Value);
 
             if (dlg.ShowDialog() == CommonFileDialogResult.Ok)
             {
-                OutFilePath = dlg.FileName;
+                OutFilePath.Value = dlg.FileName;
             }
+        }
+
+
+        private async Task Export()
+        {
+            await Task.Run(() =>
+            {
+                foreach (var (currentStep, maxSteps) in _Model.Export(InDirPath.Value, OutFilePath.Value, SelectedLangage.Value))
+                {
+                    CurrentStep.Value = currentStep;
+                    MaxSteps.Value = maxSteps;
+                }
+            });
+            CurrentStep.Value = 0;
         }
 
 
