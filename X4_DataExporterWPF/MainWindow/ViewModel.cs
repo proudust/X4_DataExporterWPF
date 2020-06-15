@@ -107,7 +107,7 @@ namespace X4_DataExporterWPF.MainWindow
             CanOperation = new ReactiveProperty<bool>(true);
 
             // 操作可能かつ入力項目に不備がない場合に true にする
-            var canExport = new []{
+            var canExport = new[]{
                 CanOperation,
                 InDirPath.Select(p => !string.IsNullOrEmpty(p)),
                 OutFilePath.Select(p => !string.IsNullOrEmpty(p)),
