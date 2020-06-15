@@ -193,30 +193,22 @@ namespace LibX4.FileSystem
         /// <summary>
         /// indexファイルに記載されているxmlを開く
         /// </summary>
-        /// <param name="filePath">indexファイルパス</param>
+        /// <param name="indexFilePath">indexファイルパス</param>
         /// <param name="name">マクロ名等</param>
+        /// <exception cref="FileNotFoundException">インデックスファイルに該当する名前が記載されていない場合</exception>
         /// <returns>解決結果先のファイル</returns>
-        public XDocument OpenIndexXml(string filePath, string name)
+        public XDocument OpenIndexXml(string indexFilePath, string name)
         {
-            XDocument ret = null;
-
-            if (!_IndexFiles.ContainsKey(filePath))
+            if (!_IndexFiles.ContainsKey(indexFilePath))
             {
-                _IndexFiles.Add(filePath, OpenXml(filePath));
+                _IndexFiles.Add(indexFilePath, OpenXml(indexFilePath));
             }
 
-            var path = _IndexFiles[filePath].XPathSelectElement($"/index/entry[@name='{name}']")?.Attribute("value").Value;
+            var path = _IndexFiles[indexFilePath].XPathSelectElement($"/index/entry[@name='{name}']")?.Attribute("value").Value;
 
-            if (path != null)
-            {
-                if (path.StartsWith("extensions"))
-                {
+            if (path == null) throw new FileNotFoundException();
 
-                }
-                ret = OpenXml($"{path}.xml");
-            }
-
-            return ret;
+            return OpenXml($"{path}.xml");
         }
     }
 }
