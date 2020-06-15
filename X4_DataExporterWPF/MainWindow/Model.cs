@@ -59,7 +59,7 @@ namespace X4_DataExporterWPF.MainWindow
         /// <param name="outFilePath">出力先ファイルパス</param>
         /// <param name="language">選択された言語</param>
         /// <returns>現在数と合計数のタプルのイテレータ</returns>
-        public IEnumerable<(int currentStep, int maxSteps)> Export(string inDirPath, string outFilePath, LangComboboxItem language)
+        public void Export(IProgress<(int currentStep, int maxSteps)> progless, string inDirPath, string outFilePath, LangComboboxItem language)
         {
 #if !DEBUG
             try
@@ -136,7 +136,7 @@ namespace X4_DataExporterWPF.MainWindow
                 {
                     exporter.Export(conn);
                     currentStep++;
-                    yield return (currentStep, maxSteps);
+                    progless.Report((currentStep, maxSteps));
                 }
 
                 trans.Commit();

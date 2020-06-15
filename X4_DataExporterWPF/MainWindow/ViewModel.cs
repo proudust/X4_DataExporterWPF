@@ -107,7 +107,7 @@ namespace X4_DataExporterWPF.MainWindow
             CanOperation = new ReactiveProperty<bool>(true);
 
             // 操作可能かつ入力項目に不備がない場合に true にする
-            var canExport = new []{
+            var canExport = new[]{
                 CanOperation,
                 InDirPath.Select(p => !string.IsNullOrEmpty(p)),
                 OutFilePath.Select(p => !string.IsNullOrEmpty(p)),
@@ -165,14 +165,17 @@ namespace X4_DataExporterWPF.MainWindow
 
         private async Task Export()
         {
-            await Task.Run(() =>
+            var progless = new Progress<(int currentStep, int maxSteps)>(s =>
             {
-                foreach (var (currentStep, maxSteps) in _Model.Export(InDirPath.Value, OutFilePath.Value, SelectedLangage.Value))
-                {
-                    CurrentStep.Value = currentStep;
-                    MaxSteps.Value = maxSteps;
-                }
+                CurrentStep.Value = s.currentStep;
+                MaxSteps.Value = s.maxSteps;
             });
+            await Task.Run(() => _Model.Export(
+                progless,
+                InDirPath.Value,
+                OutFilePath.Value,
+                SelectedLangage.Value
+            ));
             CurrentStep.Value = 0;
         }
 

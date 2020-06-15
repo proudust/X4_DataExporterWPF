@@ -56,17 +56,17 @@ CREATE TABLE IF NOT EXISTS EquipmentOwner
             {
                 var items = _WaresXml.Root.XPathSelectElements("ware[@transport='equipment']").SelectMany
                 (
-                    equipment => equipment.XPathSelectElements("owner").Select
-                    (
-                        owner =>
-                        {
-                            var equipmentID = equipment.Attribute("id")?.Value;
-                            if (string.IsNullOrEmpty(equipmentID)) return null;
-                            var factionID = owner.Attribute("faction")?.Value;
-                            if (string.IsNullOrEmpty(factionID)) return null;
-                            return new EquipmentOwner(equipmentID,factionID);
-                        }
-                    )
+                    equipment =>
+                    {
+                        var equipmentID = equipment.Attribute("id")?.Value;
+                        if (string.IsNullOrEmpty(equipmentID)) return null;
+
+                        return equipment.XPathSelectElements("owner")
+                            .Select(owner => owner.Attribute("faction")?.Value)
+                            .Where(factionID => !string.IsNullOrEmpty(factionID))
+                            .Distinct()
+                            .Select(factionID => new EquipmentOwner(equipmentID, factionID));
+                    }
                 )
                 .Where
                 (
