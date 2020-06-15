@@ -1,0 +1,33 @@
+name: Build
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup .Net Core 3.1
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 3.1.x
+
+      - name: Add Problem Matcher for dotnet-format
+        uses: xt0rted/dotnet-format-problem-matcher@v1
+
+      - name: Lint
+        run: |
+          dotnet tool install -g dotnet-format
+          dotnet-format --check
+
+      - name: Build (Debug, SingleExe)
+        run: dotnet publish -c Debug -r win-x64 /p:PublishSingleFile=true -o ./artifact ./X4_DataExporterWPF/X4_DataExporterWPF.csproj
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: Build artifact
+          path: artifact/X4_DataExporterWPF.exe
