@@ -91,7 +91,7 @@ namespace LibX4.FileSystem
         /// <returns>xmlオブジェクト</returns>
         public XDocument OpenXml(string filePath)
         {
-            XDocument ret = null;
+            XDocument? ret = null;
 
             filePath = filePath.Replace('\\', '/');
 
@@ -131,7 +131,7 @@ namespace LibX4.FileSystem
                 }
             }
 
-            return ret;
+            return ret ?? throw new FileNotFoundException(filePath);
         }
 
 
@@ -142,7 +142,7 @@ namespace LibX4.FileSystem
         /// <returns>xmlオブジェクト</returns>
         public XDocument OpenLangXml(string filePath)
         {
-            XDocument ret = null;
+            XDocument? ret = null;
 
             // バニラのxmlを読み込み
             {
@@ -186,7 +186,7 @@ namespace LibX4.FileSystem
                 }
             }
 
-            return ret;
+            return ret ?? throw new FileNotFoundException(filePath);
         }
 
 

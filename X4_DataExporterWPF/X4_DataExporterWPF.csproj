@@ -9,6 +9,7 @@
     <Company />
     <PackageId />
     <Authors />
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">

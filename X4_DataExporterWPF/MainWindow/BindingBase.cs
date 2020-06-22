@@ -10,6 +10,6 @@ namespace X4_DataExporterWPF.MainWindow
         /// <summary>
         /// プロパティ変更時のイベントハンドラ
         /// </summary>
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
     }
 }

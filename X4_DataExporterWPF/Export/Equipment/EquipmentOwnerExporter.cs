@@ -65,7 +65,17 @@ CREATE TABLE IF NOT EXISTS EquipmentOwner
                             .Select(owner => owner.Attribute("faction")?.Value)
                             .Where(factionID => !string.IsNullOrEmpty(factionID))
                             .Distinct()
-                            .Select(factionID => new EquipmentOwner(equipmentID, factionID));
+                            .Select(factionID =>
+                            {
+                                if (factionID == null)
+                                {
+                                    return null;
+                                }
+                                else
+                                {
+                                    return new EquipmentOwner(equipmentID, factionID);
+                                }
+                            });
                     }
                 )
                 .Where

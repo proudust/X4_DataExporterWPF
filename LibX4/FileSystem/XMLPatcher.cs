@@ -119,11 +119,11 @@ namespace X4_DataExporterWPF.Common
                 switch (element.Attribute("pos")?.Value ?? "prepend")
                 {
                     case AFTER:
-                        (target as XNode).AddAfterSelf(element.Nodes());
+                        (target as XNode)?.AddAfterSelf(element.Nodes());
                         break;
 
                     case BEFORE:
-                        (target as XNode).AddBeforeSelf(element.Nodes());
+                        (target as XNode)?.AddBeforeSelf(element.Nodes());
                         break;
 
                     default:
@@ -169,7 +169,14 @@ namespace X4_DataExporterWPF.Common
             {
                 // 属性の場合
                 case System.Xml.XmlNodeType.Attribute:
-                    (target as XAttribute).Value = element.Value;
+                    if (target is XAttribute attribute)
+                    {
+                        attribute.Value = element.Value;
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException();
+                    }
                     break;
 
                 // それ以外の場合
@@ -191,7 +198,7 @@ namespace X4_DataExporterWPF.Common
             {
                 // 属性の場合
                 case System.Xml.XmlNodeType.Attribute:
-                    (target as XAttribute).Remove();
+                    (target as XAttribute)?.Remove();
                     break;
 
                 // それ以外の場合

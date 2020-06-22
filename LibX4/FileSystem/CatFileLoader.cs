@@ -84,7 +84,7 @@ namespace LibX4.FileSystem
                 }
 
                 var fileName = Path.GetFileName(parts.Groups[1].Value);
-                var directories = Path.GetDirectoryName(parts.Groups[1].Value).Split('/');
+                var directories = Path.GetDirectoryName(parts.Groups[1].Value)?.Split('/') ?? throw new InvalidOperationException();
 
                 entries.Add((directories, new CatEntry(datFilePath, fileName, fileSize, offset)));
             }
@@ -183,13 +183,13 @@ namespace LibX4.FileSystem
         /// <remarks>
         /// directoriesの例) "foo/bar/baz" → ["foo", "bar", "baz"]
         /// </remarks>
-        private DirNode FindDirectory(IEnumerable<string> directories)
+        private DirNode? FindDirectory(IEnumerable<string> directories)
         {
             var ret = _FileTree;
 
             foreach (var directory in directories)
             {
-                var getSucceeded = ret.Directories.TryGetValue(directory, out DirNode next);
+                var getSucceeded = ret.Directories.TryGetValue(directory, out DirNode? next);
 
                 // ディレクトリが見つかるまでcatファイルを読み込み続ける
                 while (!getSucceeded && LoadNextCatFile())
@@ -198,7 +198,7 @@ namespace LibX4.FileSystem
                 }
 
                 // 取得失敗時
-                if (!getSucceeded)
+                if (!getSucceeded || next == null)
                 {
                     return null;
                 }
@@ -219,21 +219,21 @@ namespace LibX4.FileSystem
         /// <remarks>
         /// directoriesの例) "foo/bar/baz" → ["foo", "bar", "baz"]
         /// </remarks>
-        private (CatEntry, DirNode) FindFile(IEnumerable<string> directories, string fileName)
+        private (CatEntry?, DirNode?) FindFile(IEnumerable<string> directories, string fileName)
         {
-            DirNode directory = FindDirectory(directories);
+            DirNode? directory = FindDirectory(directories);
             if (directory == null)
             {
                 return (null, null);
             }
 
-            var getSucceeded = directory.Files.TryGetValue(fileName, out CatEntry entry);
+            var getSucceeded = directory.Files.TryGetValue(fileName, out CatEntry? entry);
             while (!getSucceeded && LoadNextCatFile())
             {
                 getSucceeded = directory.Files.TryGetValue(fileName, out entry);
             }
 
-            if (!getSucceeded)
+            if (!getSucceeded || entry == null)
             {
                 return (null, null);
             }
@@ -248,7 +248,7 @@ namespace LibX4.FileSystem
         /// </summary>
         /// <param name="filePath">開きたいファイルのパス</param>
         /// <returns>ファイルのMemoryStream</returns>
-        public MemoryStream OpenFile(string filePath)
+        public MemoryStream? OpenFile(string filePath)
         {
             filePath = filePath.Replace('\\', '/');
 
@@ -257,11 +257,10 @@ namespace LibX4.FileSystem
                 return null;
             }
 
-            var directories = Path.GetDirectoryName(filePath.ToLower()).Split('/');
+            var directories = Path.GetDirectoryName(filePath.ToLower())?.Split('/') ?? throw new InvalidOperationException();
             var fileName = Path.GetFileName(filePath);
 
             var (entry, _) = FindFile(directories, fileName);
-            //var (entry, _) = fileInfo ?? throw new ArgumentException($"Path {filePath} isn't a file.", nameof(filePath));
 
             if (entry == null)
             {
@@ -287,7 +286,7 @@ namespace LibX4.FileSystem
         {
             filePath = filePath.Replace('\\', '/');
 
-            var directories = Path.GetDirectoryName(filePath.ToLower()).Split('/');
+            var directories = Path.GetDirectoryName(filePath.ToLower())?.Split('/') ?? throw new InvalidOperationException();
             var fileName = Path.GetFileName(filePath);
 
             var (entry, _) = FindFile(directories, fileName);

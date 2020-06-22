@@ -165,6 +165,11 @@ namespace X4_DataExporterWPF.MainWindow
 
         private async Task Export()
         {
+            if (SelectedLangage.Value == null)
+            {
+                return;
+            }
+
             var progless = new Progress<(int currentStep, int maxSteps)>(s =>
             {
                 CurrentStep.Value = s.currentStep;
