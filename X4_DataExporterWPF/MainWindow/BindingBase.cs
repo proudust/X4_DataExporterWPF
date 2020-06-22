@@ -10,6 +10,8 @@ namespace X4_DataExporterWPF.MainWindow
         /// <summary>
         /// プロパティ変更時のイベントハンドラ
         /// </summary>
+#pragma warning disable CS0067
         public event PropertyChangedEventHandler? PropertyChanged;
+#pragma warning restore CS0067
     }
 }
