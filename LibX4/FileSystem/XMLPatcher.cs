@@ -17,7 +17,6 @@ namespace X4_DataExporterWPF.Common
     {
         private const string BEFORE = "before";
         private const string AFTER = "after";
-        private const string BOTH = "both";
 
         /// <summary>
         /// コンストラクタ
@@ -168,7 +167,7 @@ namespace X4_DataExporterWPF.Common
             switch (target.NodeType)
             {
                 // 属性の場合
-                case System.Xml.XmlNodeType.Attribute:
+                case XmlNodeType.Attribute:
                     if (target is XAttribute attribute)
                     {
                         attribute.Value = element.Value;
@@ -197,7 +196,7 @@ namespace X4_DataExporterWPF.Common
             switch (target.NodeType)
             {
                 // 属性の場合
-                case System.Xml.XmlNodeType.Attribute:
+                case XmlNodeType.Attribute:
                     (target as XAttribute)?.Remove();
                     break;
 
