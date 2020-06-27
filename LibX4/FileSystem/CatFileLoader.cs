@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -9,289 +8,119 @@ namespace LibX4.FileSystem
     class CatFileLoader
     {
         /// <summary>
-        /// ゲームのインストール先
+        /// まだロードされていないCat/Datファイルの絶対パス
         /// </summary>
-        private readonly string _GameRoot;
-
+        private readonly Stack<(string catFilePath, string datFilePath)> _NotLoadedPaths;
 
         /// <summary>
-        /// ロード済みファイル一覧
+        /// ロード済みのファイルメタデータ
         /// </summary>
-        private readonly HashSet<string> _Loaded = new HashSet<string>();
-
-
-        /// <summary>
-        /// catファイルとdatファイルのペア
-        /// </summary>
-        private readonly Stack<(string, string)> _DataFiles = new Stack<(string, string)>();
-
-
-        /// <summary>
-        /// ファイルツリー
-        /// </summary>
-        private readonly DirNode _FileTree = new DirNode();
-
+        private readonly Dictionary<string, CatEntry> _LoadedCatEntries
+            = new Dictionary<string, CatEntry>();
 
         /// <summary>
         /// catファイルのレコード分割用正規表現
         /// </summary>
-        private readonly Regex _CatFileParser = new Regex("(.+)? ([0-9]+)? ([0-9]+)? ([a-fA-F0-9]+)?$", RegexOptions.Compiled);
+        private static readonly Regex _CatFileParser
+            = new Regex("^(.+) ([0-9]+) ([0-9]+) ([0-9a-fA-F]+)$", RegexOptions.Compiled);
 
 
         /// <summary>
-        /// コンストラクタ
+        /// 指定のディレクトリ直下のCatファイルを検索し、読み込み対象に追加する
         /// </summary>
-        /// <param name="gameRoot">ゲームのインストール先</param>
-        public CatFileLoader(string gameRoot = "./")
+        /// <param name="dirPath">Cat/Datファイルを探すディレクトリの絶対パス</param>
+        public CatFileLoader(string dirPath)
         {
-            _GameRoot = gameRoot;
-            LoadFromGameRoot();
+            var archivePaths = Directory.EnumerateFiles(dirPath, "*.cat")
+                // ファイル名にsigを含むCatファイルは除外
+                .Where(p => !Path.GetFileName(p).Contains("sig"))
+                // Datファイルの存在を確認
+                .Select(catFilePath =>
+                {
+                    var datFileName = Path.GetFileNameWithoutExtension(catFilePath) + ".dat";
+                    var datFilePath = Path.Combine(dirPath, datFileName);
+                    return (catFilePath, datFilePath);
+                })
+                .Where(x => File.Exists(x.datFilePath));
+            _NotLoadedPaths = new Stack<(string, string)>(archivePaths);
         }
-
-
-        /// <summary>
-        /// catファイルを読み込む
-        /// </summary>
-        /// <param name="catFilePath">catファイルパス</param>
-        /// <param name="datFilePath">catファイルと対応するdatファイルパス</param>
-        /// <returns>読み込みに成功したか</returns>
-        private bool LoadCatFile(string catFilePath, string datFilePath)
-        {
-            var fileOffset = 0L;
-
-            var entries = new List<(string[], CatEntry)>();
-
-
-            foreach (var line in File.ReadLines(catFilePath).Where(x => !string.IsNullOrEmpty(x)).Select(x => x.ToLower()))
-            {
-                var parts = _CatFileParser.Matches(line).FirstOrDefault();
-
-                // フォーマット不正
-                if (parts == null || parts.Groups.Count != 5)
-                {
-                    return false;
-                }
-
-                var fileSize = long.Parse(parts.Groups[2].Value);
-
-                var offset = fileOffset;
-                fileOffset += fileSize;
-
-                // ファイルパス不正
-                if (!parts.Groups[1].Value.Contains('/'))
-                {
-                    continue;
-                }
-
-                var fileName = Path.GetFileName(parts.Groups[1].Value);
-                var directories = Path.GetDirectoryName(parts.Groups[1].Value)?.Split('/') ?? throw new InvalidOperationException();
-
-                entries.Add((directories, new CatEntry(datFilePath, fileName, fileSize, offset)));
-            }
-
-            var fileTree = _FileTree;
-
-
-            // ファイルツリーにentryを追加
-            foreach (var (directories, entry) in entries)
-            {
-                var tree = fileTree;
-
-                // entryのファイル格納先フォルダを辿る
-                foreach (var directory in directories)
-                {
-                    // フォルダのツリーが無ければ作成する
-                    if (!tree.Directories.ContainsKey(directory))
-                    {
-                        tree.Directories.Add(directory, new DirNode());
-                    }
-
-                    tree = tree.Directories[directory];
-                }
-
-                // ファイルが無ければ追加する
-                if (!tree.Files.ContainsKey(entry.FileName))
-                {
-                    tree.Files.Add(entry.FileName, entry);
-                }
-            }
-
-            // ロード済みにする
-            _Loaded.Add(catFilePath);
-
-            return true;
-        }
-
-
-        /// <summary>
-        /// 優先順位を意識して次のcatファイルを読み込む
-        /// </summary>
-        /// <returns>ファイルが読み込まれたか</returns>
-        private bool LoadNextCatFile()
-        {
-            var loaded = false;
-
-            while (_DataFiles.Any())
-            {
-                var (catFilePath, datFilePath) = _DataFiles.Pop();
-
-                // catファイルが未ロードの場合、ロードを試みる
-                if (!_Loaded.Contains(catFilePath))
-                {
-                    loaded = LoadCatFile(catFilePath, datFilePath);
-                    if (loaded)
-                    {
-                        break;
-                    }
-                }
-            }
-
-            return loaded;
-        }
-
-
-        /// <summary>
-        /// インストール先よりcatファイルを全て読み込む
-        /// </summary>
-        /// <returns>読み込んだcatファイルとdatファイルのペア数</returns>
-        private int LoadFromGameRoot()
-        {
-            var loaded = _DataFiles.Count;
-
-            var reg = new Regex(@"^(?!.*sig).+?\.cat$");
-
-            foreach (var fileName in Directory.GetFiles(_GameRoot).Select(x => Path.GetFileName(x)).Where(x => reg.IsMatch(x)).Select(x => Path.GetFileNameWithoutExtension(x)))
-            {
-                var catFilePath = Path.Combine(_GameRoot, $"{fileName}.cat");
-                var datFilePath = Path.Combine(_GameRoot, $"{fileName}.dat");
-
-                if (File.Exists(catFilePath) && File.Exists(datFilePath))
-                {
-                    _DataFiles.Push((catFilePath, datFilePath));
-                }
-            }
-
-            return _DataFiles.Count - loaded;
-        }
-
-
-        /// <summary>
-        /// directoriesに対応するDirNodeを検索する
-        /// </summary>
-        /// <param name="directories">ディレクトリ名のリスト</param>
-        /// <returns>directoriesに対応するDirNode</returns>
-        /// <remarks>
-        /// directoriesの例) "foo/bar/baz" → ["foo", "bar", "baz"]
-        /// </remarks>
-        private DirNode? FindDirectory(IEnumerable<string> directories)
-        {
-            var ret = _FileTree;
-
-            foreach (var directory in directories)
-            {
-                var getSucceeded = ret.Directories.TryGetValue(directory, out DirNode? next);
-
-                // ディレクトリが見つかるまでcatファイルを読み込み続ける
-                while (!getSucceeded && LoadNextCatFile())
-                {
-                    getSucceeded = ret.Directories.TryGetValue(directory, out next);
-                }
-
-                // 取得失敗時
-                if (!getSucceeded || next == null)
-                {
-                    return null;
-                }
-
-                ret = next;
-            }
-
-            return ret;
-        }
-
-
-        /// <summary>
-        /// directoriesとfileNameに対応するCatEntryとDirNodeを検索する
-        /// </summary>
-        /// <param name="directories">ディレクトリ名のリスト</param>
-        /// <param name="fileName">ファイル名</param>
-        /// <returns>directoriesとfileNameに対応するタプル</returns>
-        /// <remarks>
-        /// directoriesの例) "foo/bar/baz" → ["foo", "bar", "baz"]
-        /// </remarks>
-        private (CatEntry?, DirNode?) FindFile(IEnumerable<string> directories, string fileName)
-        {
-            DirNode? directory = FindDirectory(directories);
-            if (directory == null)
-            {
-                return (null, null);
-            }
-
-            var getSucceeded = directory.Files.TryGetValue(fileName, out CatEntry? entry);
-            while (!getSucceeded && LoadNextCatFile())
-            {
-                getSucceeded = directory.Files.TryGetValue(fileName, out entry);
-            }
-
-            if (!getSucceeded || entry == null)
-            {
-                return (null, null);
-            }
-
-            return (entry, directory);
-        }
-
 
 
         /// <summary>
         /// ファイルを開く
         /// </summary>
         /// <param name="filePath">開きたいファイルのパス</param>
-        /// <returns>ファイルのMemoryStream</returns>
+        /// <exception cref="IOException">読み込んだCatファイルの書式が不正な場合</exception>
+        /// <returns>ファイルのMemoryStream、該当ファイルが無かった場合はnull</returns>
         public MemoryStream? OpenFile(string filePath)
         {
-            filePath = filePath.Replace('\\', '/');
+            var entry = GetCatEntry(filePath);
+            if (entry == null) return null;
 
-            if (string.IsNullOrEmpty(filePath))
-            {
-                return null;
-            }
-
-            var directories = Path.GetDirectoryName(filePath.ToLower())?.Split('/') ?? throw new InvalidOperationException();
-            var fileName = Path.GetFileName(filePath);
-
-            var (entry, _) = FindFile(directories, fileName);
-
-            if (entry == null)
-            {
-                return null;
-            }
-
-            using var fs = new FileStream(entry.DatFilePath, FileMode.Open, FileAccess.Read, FileShare.Read, (int)entry.FileSize);
+            using var fs = new FileStream(
+                entry.DatFilePath,
+                FileMode.Open,
+                FileAccess.Read,
+                FileShare.Read,
+                entry.FileSize
+            );
             fs.Seek(entry.Offset, SeekOrigin.Begin);
-
             var buff = new byte[entry.FileSize];
             fs.Read(buff, 0, buff.Length);
-
             return new MemoryStream(buff, false);
         }
 
 
         /// <summary>
-        /// ファイルが存在するか確認する
+        /// Catファイルから必要なファイルのメタデータを取得する
         /// </summary>
-        /// <param name="filePath">確認対象ファイルパス</param>
-        /// <returns>ファイルが存在するか</returns>
-        public bool FileExists(string filePath)
+        /// <param name="searchFilePath">必要なファイルの相対パス</param>
+        /// <exception cref="IOException">読み込んだCatファイルの書式が不正な場合</exception>
+        /// <returns>見つかったファイルのメタデータ、該当ファイルが無かった場合はnull</returns>
+        private CatEntry? GetCatEntry(string searchFilePath)
         {
-            filePath = filePath.Replace('\\', '/');
+            searchFilePath = searchFilePath.ToLower();
+            if (_LoadedCatEntries.TryGetValue(searchFilePath, out var entry)) return entry;
 
-            var directories = Path.GetDirectoryName(filePath.ToLower())?.Split('/') ?? throw new InvalidOperationException();
-            var fileName = Path.GetFileName(filePath);
+            while (_NotLoadedPaths.Any())
+            {
+                ReadNextCatFile();
 
-            var (entry, _) = FindFile(directories, fileName);
+                if (_LoadedCatEntries.TryGetValue(searchFilePath, out var newEntry))
+                {
+                    return newEntry;
+                }
+            }
 
-            return entry != null;
+            return null;
+        }
+
+        /// <summary>
+        /// 次のCatファイルを読み込み、_LoadedCatEntriesに追加する
+        /// </summary>
+        /// <exception cref="IOException">読み込んだCatファイルの書式が不正な場合</exception>
+        private void ReadNextCatFile()
+        {
+            var (catFilePath, datFilePath) = _NotLoadedPaths.Pop();
+            var fileOffset = 0L;
+
+            foreach (var line in File.ReadAllLines(catFilePath))
+            {
+                var matchs = _CatFileParser.Matches(line.ToLower()).FirstOrDefault()?.Groups;
+                if (matchs?.Count != 5)
+                {
+                    throw new IOException($"{catFilePath} is invalid format.");
+                }
+
+                var filePath = matchs[1].Value;
+                var fileName = Path.GetFileName(matchs[1].Value);
+                var fileSize = int.Parse(matchs[2].Value);
+                var offset = fileOffset;
+                fileOffset += fileSize;
+
+                var entry = new CatEntry(datFilePath, fileName, fileSize, offset);
+                _LoadedCatEntries.TryAdd(filePath, entry);
+            }
         }
     }
 }
