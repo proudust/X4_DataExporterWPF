@@ -135,7 +135,15 @@ namespace X4_DataExporterWPF.MainWindow
         {
             var dlg = new CommonOpenFileDialog();
             dlg.IsFolderPicker = true;
-            dlg.InitialDirectory = Path.GetDirectoryName(InDirPath.Value);
+
+            if (Directory.Exists(InDirPath.Value))
+            {
+                dlg.InitialDirectory = InDirPath.Value;
+            }
+            else
+            {
+                dlg.InitialDirectory = Path.GetDirectoryName(InDirPath.Value);
+            }
 
             if (dlg.ShowDialog() == CommonFileDialogResult.Ok)
             {
