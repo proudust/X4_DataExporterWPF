@@ -136,6 +136,7 @@ namespace X4_DataExporterWPF.MainWindow
         {
             var dlg = new CommonOpenFileDialog();
             dlg.IsFolderPicker = true;
+            dlg.AllowNonFileSystemItems = false;
 
             if (Directory.Exists(InDirPath.Value))
             {
