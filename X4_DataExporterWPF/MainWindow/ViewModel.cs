@@ -1,11 +1,12 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using Microsoft.WindowsAPICodePack.Dialogs;
+using Reactive.Bindings;
+using Reactive.Bindings.Extensions;
+using System;
 using System.IO;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using System.Windows;
-using Microsoft.WindowsAPICodePack.Dialogs;
-using Reactive.Bindings;
-using Reactive.Bindings.Extensions;
 
 namespace X4_DataExporterWPF.MainWindow
 {
@@ -157,14 +158,13 @@ namespace X4_DataExporterWPF.MainWindow
         /// </summary>
         private void SelectOutPath()
         {
-            var dlg = new CommonSaveFileDialog();
-            dlg.InitialDirectory = Path.GetDirectoryName(OutFilePath.Value);
-            dlg.Filters.Add(new CommonFileDialogFilter("Database file", "*.db"));
-            dlg.Filters.Add(new CommonFileDialogFilter("SQLite3 file", "*.sqlite"));
-            dlg.Filters.Add(new CommonFileDialogFilter("All", "*.*"));
-            dlg.DefaultFileName = Path.GetFileName(OutFilePath.Value);
+            var dlg = new SaveFileDialog
+            {
+                Filter = "Database file (*.db)|*.db|SQLite3 file (*.sqlite)|*.sqlite|All (*.*)|*.*",
+                InitialDirectory = Path.GetFileName(OutFilePath.Value)
+            };
 
-            if (dlg.ShowDialog() == CommonFileDialogResult.Ok)
+            if (dlg.ShowDialog() == true)
             {
                 OutFilePath.Value = dlg.FileName;
             }
