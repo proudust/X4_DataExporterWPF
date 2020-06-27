@@ -20,7 +20,7 @@
         /// <summary>
         /// ファイルサイズ
         /// </summary>
-        public readonly long FileSize;
+        public readonly int FileSize;
 
 
         /// <summary>
@@ -37,7 +37,7 @@
         /// <param name="filename">ファイル名</param>
         /// <param name="fileSize">ファイルサイズ</param>
         /// <param name="offset">datファイル上のオフセット</param>
-        public CatEntry(string datFilePath, string filename, long fileSize, long offset)
+        public CatEntry(string datFilePath, string filename, int fileSize, long offset)
         {
             DatFilePath = datFilePath;
             FileName = filename;
