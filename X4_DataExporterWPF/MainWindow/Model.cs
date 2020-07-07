@@ -9,6 +9,7 @@ using System.Xml.XPath;
 using CommandLine;
 using LibX4.FileSystem;
 using LibX4.Lang;
+using Microsoft.Win32;
 using X4_DataExporterWPF.Export;
 
 namespace X4_DataExporterWPF.MainWindow
@@ -27,6 +28,21 @@ namespace X4_DataExporterWPF.MainWindow
                 return parsed.Value;
             }
             return new CommandlineOptions();
+        }
+
+
+        /// <summary>
+        /// レジストリのアンインストール情報からインストールディレクトリを取得する
+        /// </summary>
+        /// <returns></returns>
+        public string? GetInstallDir()
+        {
+            var installDir = Registry.GetValue(
+                @"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 392160",
+                "InstallLocation",
+                null
+            );
+            return installDir as string;
         }
 
 

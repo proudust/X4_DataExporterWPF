@@ -94,9 +94,10 @@ namespace X4_DataExporterWPF.MainWindow
         public ViewModel()
         {
             var options = _Model.GetCommandlineOptions();
+            var installDir = _Model.GetInstallDir();
 
-            InDirPath = new ReactiveProperty<string>(options.InputDirectory);
-            OutFilePath = new ReactiveProperty<string>(options.OutputFilePath);
+            InDirPath = new ReactiveProperty<string>(options.InputDirectory ?? installDir ?? "");
+            OutFilePath = new ReactiveProperty<string>(options.OutputFilePath ?? "");
 
             Langages = new ReactiveCollection<LangComboboxItem>();
             SelectedLangage = new ReactiveProperty<LangComboboxItem?>();
